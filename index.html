@@ -1,916 +1,2285 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sweat Rate Calculator</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #ffffff; --bg-secondary: #f5f5f3; --bg-tertiary: #eeede9;
-  --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
-  --border: rgba(0,0,0,0.12); --border-mid: rgba(0,0,0,0.22);
-  --radius-md: 8px; --radius-lg: 12px;
-  --blue: #185FA5; --blue-bg: #E6F1FB; --blue-text: #0C447C;
-  --green: #3B6D11; --green-bg: #EAF3DE; --green-text: #27500A;
-  --amber: #854F0B; --amber-bg: #FAEEDA; --amber-text: #633806;
-  --red: #A32D2D; --red-bg: #FCEBEB; --red-text: #791F1F;
-  --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-text: #085041;
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1e1e1c; --bg-secondary: #2a2a28; --bg-tertiary: #252523;
-    --text-primary: #f0efea; --text-secondary: #b4b2a9; --text-tertiary: #888780;
-    --border: rgba(255,255,255,0.1); --border-mid: rgba(255,255,255,0.2);
-    --blue: #85B7EB; --blue-bg: #0c2a47; --blue-text: #B5D4F4;
-    --green: #97C459; --green-bg: #1a2e08; --green-text: #C0DD97;
-    --amber: #EF9F27; --amber-bg: #2e1e06; --amber-text: #FAC775;
-    --red: #F09595; --red-bg: #2e0f0f; --red-text: #F7C1C1;
-    --teal: #5DCAA5; --teal-bg: #042e22; --teal-text: #9FE1CB;
-  }
-}
-body { font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); min-height: 100vh; padding: 2rem 1rem; }
-.page-wrap { max-width: 760px; margin: 0 auto; }
-.page-header { margin-bottom: 1.5rem; }
-.page-header h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
-.page-header p { font-size: 14px; color: var(--text-secondary); }
-.section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; margin-top: 1.25rem; }
-.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; }
-.card-title { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.card-title i { font-size: 16px; color: var(--text-secondary); }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-@media (max-width: 540px) { .two-col, .three-col { grid-template-columns: 1fr; } }
-.field-group-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
-.inline-inputs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.unit { font-size: 12px; color: var(--text-tertiary); }
-.field-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; gap: 12px; border-bottom: 0.5px solid var(--border); }
-.field-row:last-child { border-bottom: none; }
-.field-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
-.field-input { display: flex; align-items: center; gap: 6px; }
-input[type="number"], input[type="text"], select, textarea {
-  background: var(--bg-secondary); border: 0.5px solid var(--border);
-  border-radius: var(--radius-md); color: var(--text-primary);
-  font-family: var(--font); font-size: 13px; padding: 5px 8px; height: 32px; outline: none; transition: border-color 0.15s;
-}
-input[type="number"]:focus, input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--border-mid); box-shadow: 0 0 0 2px rgba(23,95,165,0.15); }
-input[type="number"] { text-align: right; }
-select { height: 32px; cursor: pointer; }
-textarea { height: auto; min-height: 32px; resize: none; padding: 6px 8px; line-height: 1.4; }
-.add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: var(--blue); background: none; border: 0.5px dashed var(--blue); border-radius: var(--radius-md); padding: 7px 12px; cursor: pointer; width: 100%; margin-top: 10px; font-family: var(--font); transition: background 0.15s; }
-.add-btn:hover { background: var(--blue-bg); }
-.remove-btn { background: none; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 15px; padding: 2px 4px; line-height: 1; border-radius: 4px; }
-.remove-btn:hover { color: var(--red); }
-.bathroom-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid var(--border); }
-.bathroom-row:last-child { border-bottom: none; }
-.b-num { font-size: 12px; color: var(--text-tertiary); min-width: 22px; }
-.b-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
-.default-badge { font-size: 10px; font-weight: 500; background: var(--amber-bg); color: var(--amber-text); padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
-.default-note { display: flex; align-items: flex-start; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--amber); line-height: 1.5; }
-.default-note i { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-.divider { border: none; border-top: 0.5px solid var(--border); margin: 1.5rem 0 1rem; }
-.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1rem; }
-.metric-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px; }
-.m-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
-.m-value { font-size: 22px; font-weight: 500; color: var(--text-primary); line-height: 1.2; }
-.m-unit { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
-.metric-card.c-blue .m-value { color: var(--blue-text); }
-.metric-card.c-green .m-value { color: var(--green-text); }
-.metric-card.c-amber .m-value { color: var(--amber-text); }
-.metric-card.c-red .m-value { color: var(--red-text); }
-.sweat-bar-wrap { margin: 1rem 0 0.5rem; }
-.bar-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
-.bar-track { height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; border: 0.5px solid var(--border); }
-.bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease, background-color 0.3s ease; }
-.status-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-.status-pill { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
-.pill-green { background: var(--green-bg); color: var(--green-text); }
-.pill-blue { background: var(--blue-bg); color: var(--blue-text); }
-.pill-amber { background: var(--amber-bg); color: var(--amber-text); }
-.pill-red { background: var(--red-bg); color: var(--red-text); }
-.status-text { font-size: 13px; color: var(--text-secondary); }
-.save-btn { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--bg); background: var(--blue); border: none; border-radius: var(--radius-md); padding: 10px 20px; cursor: pointer; font-family: var(--font); transition: opacity 0.15s; margin-top: 1.25rem; width: 100%; }
-.save-btn:hover { opacity: 0.88; }
-.save-btn.saved { background: var(--green); }
-.footnote { font-size: 11px; color: var(--text-tertiary); margin-top: 1rem; line-height: 1.6; border-top: 0.5px solid var(--border); padding-top: 1rem; }
-.food-hint { font-size: 12px; color: var(--text-tertiary); margin-bottom: 10px; line-height: 1.5; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sweat Rate Calculator</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-/* Log */
-.log-section { margin-top: 2rem; }
-.log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-.log-header h2 { font-size: 16px; font-weight: 500; }
-.log-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.log-btn { display: flex; align-items: center; gap: 5px; font-size: 12px; background: none; border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 5px 12px; cursor: pointer; color: var(--text-secondary); font-family: var(--font); transition: background 0.15s; white-space: nowrap; }
-.log-btn:hover { background: var(--bg-secondary); }
-.log-btn.export { color: var(--green-text); border-color: var(--green); }
-.log-btn.export:hover { background: var(--green-bg); }
-.log-btn.import { color: var(--blue-text); border-color: var(--blue); }
-.log-btn.import:hover { background: var(--blue-bg); }
-.log-btn.clear-all { color: var(--red-text); border-color: var(--red); }
-.log-btn.clear-all:hover { background: var(--red-bg); }
-.log-empty { font-size: 13px; color: var(--text-tertiary); padding: 1.5rem; text-align: center; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); }
-.log-count { font-size: 12px; color: var(--text-tertiary); }
-.log-table-wrap { overflow-x: auto; border: 0.5px solid var(--border); border-radius: var(--radius-lg); background: var(--bg); }
-table.log-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 800px; }
-table.log-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-tertiary); border-bottom: 0.5px solid var(--border); background: var(--bg-secondary); white-space: nowrap; }
-table.log-table td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); color: var(--text-secondary); white-space: nowrap; vertical-align: middle; }
-table.log-table tr:last-child td { border-bottom: none; }
-table.log-table tr:hover td { background: var(--bg-secondary); }
-.log-del-btn { background: none; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; }
-.log-del-btn:hover { color: var(--red); }
+      /* ── MENNENDURANCE light theme ───────────────────────────────── */
+      :root {
+        /* Surfaces */
+        --bg: #f2f2f2; /* card surface */
+        --bg-secondary: #e8e8e8; /* inset / input */
+        --bg-tertiary: #ffffff; /* page background */
+        --bg-raised: #ffffff; /* elevated */
 
-.toggle-wrap { width: 40px; height: 22px; background: var(--bg-tertiary); border: 0.5px solid var(--border-mid); border-radius: 11px; position: relative; cursor: pointer; transition: background 0.2s, border-color 0.2s; flex-shrink: 0; }
-.toggle-wrap[aria-checked="true"] { background: var(--blue); border-color: var(--blue); }
-.toggle-knob { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-.toggle-wrap[aria-checked="true"] .toggle-knob { transform: translateX(18px); }
+        /* Text */
+        --text-primary: #111111;
+        --text-secondary: #444444;
+        --text-tertiary: #888888;
 
-/* Session summary modal */
-.summary-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
-.summary-overlay.hidden { display: none; }
-.summary-modal { background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border-mid); max-width: 600px; width: 100%; padding: 0; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-.summary-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 1.25rem 1.5rem 1rem; border-bottom: 0.5px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
-.summary-header-left h3 { font-size: 17px; font-weight: 500; margin-bottom: 3px; }
-.summary-header-left p { font-size: 13px; color: var(--text-tertiary); }
-.summary-close { background: none; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 20px; padding: 2px; line-height: 1; flex-shrink: 0; border-radius: 4px; margin-top: 2px; }
-.summary-close:hover { color: var(--text-primary); }
-.summary-body { padding: 1.25rem 1.5rem; }
-.summary-section { margin-bottom: 1.25rem; }
-.summary-section:last-child { margin-bottom: 0; }
-.summary-section-title { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px; }
-.summary-kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 0.5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
-.summary-kv { display: flex; flex-direction: column; padding: 8px 12px; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
-.summary-kv:nth-child(even) { border-right: none; }
-.summary-kv:nth-last-child(-n+2) { border-bottom: none; }
-.summary-kv:last-child:nth-child(odd) { border-bottom: none; grid-column: span 2; }
-.kv-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 2px; }
-.kv-value { font-size: 14px; font-weight: 500; color: var(--text-primary); }
-.kv-value.muted { color: var(--text-tertiary); font-weight: 400; }
-.summary-results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
-.summary-result-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; }
-.src-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 3px; }
-.src-value { font-size: 20px; font-weight: 500; color: var(--text-primary); line-height: 1.2; }
-.src-unit { font-size: 11px; color: var(--text-tertiary); }
-.summary-result-card.c-blue .src-value { color: var(--blue-text); }
-.summary-result-card.c-green .src-value { color: var(--green-text); }
-.summary-result-card.c-amber .src-value { color: var(--amber-text); }
-.summary-result-card.c-red .src-value { color: var(--red-text); }
-.summary-bar-wrap { margin: 12px 0 8px; }
-.summary-status-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-.summary-footer { padding: 0 1.5rem 1.25rem; display: flex; gap: 8px; }
-.summary-del-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; background: none; border: 0.5px solid var(--red); color: var(--red-text); border-radius: var(--radius-md); padding: 7px 14px; cursor: pointer; font-family: var(--font); transition: background 0.15s; }
-.summary-del-btn:hover { background: var(--red-bg); }
+        /* Borders */
+        --border: rgba(73, 90, 88, 0.15);
+        --border-mid: rgba(73, 90, 88, 0.35);
 
-/* clickable log rows */
-table.log-table tbody tr { cursor: pointer; }
-table.log-table tbody tr:hover td { background: var(--blue-bg); color: var(--text-primary); }
+        /* Brand */
+        --accent: #495a58;
+        --accent-light: rgba(73, 90, 88, 0.08);
+        --accent-medium: rgba(73, 90, 88, 0.16);
 
-/* Conflict modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-.modal-overlay.hidden { display: none; }
-.modal { background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border-mid); max-width: 640px; width: 100%; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
-.modal .modal-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 1.25rem; }
-.conflict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
-@media (max-width: 480px) { .conflict-grid { grid-template-columns: 1fr; } }
-.conflict-card { border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px; font-size: 12px; }
-.conflict-card .cc-title { font-size: 12px; font-weight: 500; margin-bottom: 8px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
-.conflict-card .cc-row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-bottom: 0.5px solid var(--border); }
-.conflict-card .cc-row:last-child { border-bottom: none; }
-.cc-key { color: var(--text-tertiary); flex-shrink: 0; }
-.cc-val { color: var(--text-primary); text-align: right; font-weight: 500; }
-.cc-val.diff { color: var(--amber-text); }
-.conflict-card.keep-existing { border-color: var(--blue); background: var(--blue-bg); }
-.conflict-card.keep-imported { border-color: var(--green); background: var(--green-bg); }
-.modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.modal-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; font-family: var(--font); border: 0.5px solid transparent; transition: opacity 0.15s; }
-.modal-btn.keep-existing-btn { background: var(--blue); color: white; }
-.modal-btn.keep-imported-btn { background: var(--green); color: white; }
-.modal-btn:hover { opacity: 0.85; }
-.modal-progress { font-size: 12px; color: var(--text-tertiary); margin-bottom: 1rem; }
+        /* Semantic */
+        --green: #2e7d4f;
+        --green-bg: #eaf5ee;
+        --green-text: #1f5c39;
+        --blue: #1a5ea0;
+        --blue-bg: #e6f0fb;
+        --blue-text: #134880;
+        --amber: #9a5b0a;
+        --amber-bg: #fef3e2;
+        --amber-text: #7a4608;
+        --red: #c0332e;
+        --red-bg: #fdecec;
+        --red-text: #9c2420;
+        --teal: #0f6e56;
+        --teal-bg: #e2f4ef;
+        --teal-text: #0a5240;
 
-/* Toast */
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-primary); color: var(--bg); font-size: 13px; padding: 8px 20px; border-radius: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 999; white-space: nowrap; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-</style>
-</head>
-<body>
-<div class="page-wrap">
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --font:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
 
-  <div class="page-header">
-    <h1>Sweat rate calculator</h1>
-    <p>Track fluid in, food intake, urination, and environmental conditions to estimate gross sweat loss.</p>
-  </div>
+      body {
+        font-family: var(--font);
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 0 0 3rem;
+      }
 
-  <div class="section-label">Session details</div>
-  <div class="card">
-    <div class="two-col">
-      <div>
-        <div class="field-group-label">Duration</div>
-        <div class="inline-inputs">
-          <input type="number" id="dur-h" value="1" min="0" max="24" style="width:52px" oninput="calc()">
-          <span class="unit">h</span>
-          <input type="number" id="dur-m" value="30" min="0" max="59" style="width:52px" oninput="calc()">
-          <span class="unit">min</span>
-        </div>
+      /* ── Brand header ── */
+      /* ── Brand header ── */
+      .brand-bar {
+        background: var(--accent);
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 2rem;
+      }
+      .brand-icon {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+      }
+      .brand-icon img {
+        height: 48px;
+        width: auto;
+        object-fit: contain;
+        display: block;
+      }
+      .brand-name {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #ffffff;
+      }
+      .brand-tool {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 2px;
+      }
+      .brand-sep {
+        width: 1px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.25);
+        flex-shrink: 0;
+      }
+
+      .page-wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+      .page-header {
+        margin-bottom: 1.25rem;
+      }
+      .page-header h1 {
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 3px;
+      }
+      .page-header p {
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      .section-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        margin-bottom: 8px;
+        margin-top: 1.25rem;
+      }
+      .card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.25rem;
+        margin-bottom: 8px;
+      }
+      .card-title {
+        font-size: 13px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+      }
+      .card-title i {
+        font-size: 15px;
+        color: var(--text-tertiary);
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .three-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 540px) {
+        .two-col,
+        .three-col {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .field-group-label {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 6px;
+        letter-spacing: 0.03em;
+      }
+      .inline-inputs {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .unit {
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+
+      .field-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 7px 0;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .field-row:last-child {
+        border-bottom: none;
+      }
+      .field-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        flex: 1;
+      }
+      .field-input {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      input[type="number"],
+      input[type="text"],
+      select,
+      textarea {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-family: var(--font);
+        font-size: 13px;
+        padding: 5px 8px;
+        height: 32px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      input[type="number"]:focus,
+      input[type="text"]:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(73, 90, 88, 0.12);
+      }
+      input[type="number"] {
+        text-align: right;
+      }
+      select {
+        height: 32px;
+        cursor: pointer;
+      }
+      textarea {
+        height: auto;
+        min-height: 32px;
+        resize: none;
+        padding: 6px 8px;
+        line-height: 1.4;
+      }
+
+      /* Inputs: override browser autofill dark bg */
+      input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 100px var(--bg-secondary) inset !important;
+        -webkit-text-fill-color: var(--text-primary) !important;
+      }
+
+      .add-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--accent);
+        background: none;
+        border: 1px dashed var(--border-mid);
+        border-radius: var(--radius-md);
+        padding: 7px 12px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;
+        font-family: var(--font);
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .add-btn:hover {
+        background: var(--accent-light);
+      }
+      .remove-btn {
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        font-size: 15px;
+        padding: 2px 4px;
+        line-height: 1;
+        border-radius: 4px;
+      }
+      .remove-btn:hover {
+        color: var(--red);
+      }
+
+      .bathroom-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .bathroom-row:last-child {
+        border-bottom: none;
+      }
+      .b-num {
+        font-size: 12px;
+        color: var(--text-tertiary);
+        min-width: 22px;
+      }
+      .b-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        flex: 1;
+      }
+      .default-badge {
+        font-size: 10px;
+        font-weight: 500;
+        background: var(--amber-bg);
+        color: var(--amber-text);
+        padding: 2px 7px;
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+      .default-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--amber);
+        line-height: 1.5;
+      }
+      .default-note i {
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 1.5rem 0 1rem;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 8px;
+        margin-bottom: 1rem;
+      }
+      .metric-card {
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        padding: 12px;
+        border: 1px solid var(--border);
+      }
+      .m-label {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 4px;
+      }
+      .m-value {
+        font-size: 22px;
+        font-weight: 500;
+        color: var(--text-primary);
+        line-height: 1.2;
+      }
+      .m-unit {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-top: 2px;
+      }
+      .metric-card.c-blue .m-value {
+        color: var(--blue-text);
+      }
+      .metric-card.c-green .m-value {
+        color: var(--green-text);
+      }
+      .metric-card.c-amber .m-value {
+        color: var(--amber-text);
+      }
+      .metric-card.c-red .m-value {
+        color: var(--red-text);
+      }
+
+      .sweat-bar-wrap {
+        margin: 1rem 0 0.5rem;
+      }
+      .bar-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+      }
+      .bar-track {
+        height: 6px;
+        background: var(--bg-secondary);
+        border-radius: 3px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition:
+          width 0.3s ease,
+          background-color 0.3s ease;
+      }
+
+      .status-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      .status-pill {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 4px 12px;
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+      .pill-green {
+        background: var(--green-bg);
+        color: var(--green-text);
+      }
+      .pill-blue {
+        background: var(--blue-bg);
+        color: var(--blue-text);
+      }
+      .pill-amber {
+        background: var(--amber-bg);
+        color: var(--amber-text);
+      }
+      .pill-red {
+        background: var(--red-bg);
+        color: var(--red-text);
+      }
+      .status-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      .save-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: #ffffff;
+        background: var(--accent);
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 11px 20px;
+        cursor: pointer;
+        font-family: var(--font);
+        transition: opacity 0.15s;
+        margin-top: 1.25rem;
+        width: 100%;
+      }
+      .save-btn:hover {
+        opacity: 0.88;
+      }
+      .save-btn.saved {
+        background: var(--green);
+        color: #ffffff;
+      }
+
+      .footnote {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-top: 1rem;
+        line-height: 1.6;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+      }
+      .food-hint {
+        font-size: 12px;
+        color: var(--text-tertiary);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+
+      /* ── Log ── */
+      .log-section {
+        margin-top: 2rem;
+      }
+      .log-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .log-header h2 {
+        font-size: 15px;
+        font-weight: 500;
+      }
+      .log-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .log-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 5px 12px;
+        cursor: pointer;
+        color: var(--text-secondary);
+        font-family: var(--font);
+        transition:
+          background 0.15s,
+          border-color 0.15s;
+        white-space: nowrap;
+      }
+      .log-btn:hover {
+        background: var(--accent-light);
+        border-color: var(--border-mid);
+        color: var(--accent);
+      }
+      .log-btn.export {
+        color: var(--green-text);
+        border-color: rgba(46, 125, 79, 0.3);
+      }
+      .log-btn.export:hover {
+        background: var(--green-bg);
+        border-color: var(--green);
+      }
+      .log-btn.import {
+        color: var(--accent);
+        border-color: var(--border-mid);
+      }
+      .log-btn.import:hover {
+        background: var(--accent-light);
+      }
+      .log-btn.clear-all {
+        color: var(--red-text);
+        border-color: rgba(192, 51, 46, 0.3);
+      }
+      .log-btn.clear-all:hover {
+        background: var(--red-bg);
+        border-color: var(--red);
+      }
+      .log-empty {
+        font-size: 13px;
+        color: var(--text-tertiary);
+        padding: 2rem;
+        text-align: center;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+      }
+      .log-count {
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+      .log-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--bg);
+      }
+      table.log-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        min-width: 800px;
+      }
+      table.log-table th {
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-secondary);
+        white-space: nowrap;
+      }
+      table.log-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-secondary);
+        white-space: nowrap;
+        vertical-align: middle;
+      }
+      table.log-table tr:last-child td {
+        border-bottom: none;
+      }
+      .log-del-btn {
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        font-size: 14px;
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+      .log-del-btn:hover {
+        color: var(--red);
+      }
+
+      /* clickable log rows */
+      table.log-table tbody tr {
+        cursor: pointer;
+        transition: background 0.1s;
+      }
+      table.log-table tbody tr:hover td {
+        background: var(--accent-light);
+        color: var(--text-primary);
+      }
+
+      /* ── Toggle ── */
+      .toggle-wrap {
+        width: 40px;
+        height: 22px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-mid);
+        border-radius: 11px;
+        position: relative;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          border-color 0.2s;
+        flex-shrink: 0;
+      }
+      .toggle-wrap[aria-checked="true"] {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .toggle-knob {
+        width: 16px;
+        height: 16px;
+        background: #ffffff;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      }
+      .toggle-wrap[aria-checked="true"] .toggle-knob {
+        transform: translateX(18px);
+      }
+
+      /* ── Session summary modal ── */
+      .summary-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        overflow-y: auto;
+      }
+      .summary-overlay.hidden {
+        display: none;
+      }
+      .summary-modal {
+        background: var(--bg);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-mid);
+        max-width: 600px;
+        width: 100%;
+        padding: 0;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .summary-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 1.25rem 1.5rem 1rem;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        z-index: 1;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      }
+      .summary-header-left h3 {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 3px;
+      }
+      .summary-header-left p {
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+      .summary-close {
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        font-size: 20px;
+        padding: 2px;
+        line-height: 1;
+        flex-shrink: 0;
+        border-radius: 4px;
+        margin-top: 2px;
+      }
+      .summary-close:hover {
+        color: var(--text-primary);
+      }
+      .summary-body {
+        padding: 1.25rem 1.5rem;
+      }
+      .summary-section {
+        margin-bottom: 1.25rem;
+      }
+      .summary-section:last-child {
+        margin-bottom: 0;
+      }
+      .summary-section-title {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        margin-bottom: 8px;
+      }
+      .summary-kv-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+      }
+      .summary-kv {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+      }
+      .summary-kv:nth-child(even) {
+        border-right: none;
+      }
+      .summary-kv:nth-last-child(-n + 2) {
+        border-bottom: none;
+      }
+      .summary-kv:last-child:nth-child(odd) {
+        border-bottom: none;
+        grid-column: span 2;
+      }
+      .kv-label {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 2px;
+      }
+      .kv-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+      .kv-value.muted {
+        color: var(--text-tertiary);
+        font-weight: 400;
+      }
+      .summary-results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+      }
+      .summary-result-card {
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+      }
+      .src-label {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 3px;
+      }
+      .src-value {
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--text-primary);
+        line-height: 1.2;
+      }
+      .src-unit {
+        font-size: 11px;
+        color: var(--text-tertiary);
+      }
+      .summary-result-card.c-blue .src-value {
+        color: var(--blue-text);
+      }
+      .summary-result-card.c-green .src-value {
+        color: var(--green-text);
+      }
+      .summary-result-card.c-amber .src-value {
+        color: var(--amber-text);
+      }
+      .summary-result-card.c-red .src-value {
+        color: var(--red-text);
+      }
+      .summary-bar-wrap {
+        margin: 12px 0 8px;
+      }
+      .summary-status-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .summary-footer {
+        padding: 0 1.5rem 1.25rem;
+        display: flex;
+        gap: 8px;
+      }
+      .summary-del-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        background: none;
+        border: 1px solid rgba(240, 112, 112, 0.4);
+        color: var(--red-text);
+        border-radius: var(--radius-md);
+        padding: 7px 14px;
+        cursor: pointer;
+        font-family: var(--font);
+        transition: background 0.15s;
+      }
+      .summary-del-btn:hover {
+        background: var(--red-bg);
+      }
+
+      /* ── Conflict modal ── */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .modal-overlay.hidden {
+        display: none;
+      }
+      .modal {
+        background: var(--bg);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-mid);
+        max-width: 640px;
+        width: 100%;
+        padding: 1.5rem;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+      }
+      .modal h3 {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .modal .modal-sub {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 1.25rem;
+      }
+      .conflict-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 1.25rem;
+      }
+      @media (max-width: 480px) {
+        .conflict-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .conflict-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 12px;
+        font-size: 12px;
+        background: var(--bg-secondary);
+      }
+      .conflict-card .cc-title {
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .conflict-card .cc-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 3px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .conflict-card .cc-row:last-child {
+        border-bottom: none;
+      }
+      .cc-key {
+        color: var(--text-tertiary);
+        flex-shrink: 0;
+      }
+      .cc-val {
+        color: var(--text-primary);
+        text-align: right;
+        font-weight: 500;
+      }
+      .cc-val.diff {
+        color: var(--amber-text);
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .modal-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-family: var(--font);
+        border: 1px solid transparent;
+        transition: opacity 0.15s;
+      }
+      .modal-btn.keep-existing-btn {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: var(--accent);
+      }
+      .modal-btn.keep-imported-btn {
+        background: var(--green);
+        color: #ffffff;
+        border-color: var(--green);
+      }
+      .modal-btn:hover {
+        opacity: 0.85;
+      }
+      .modal-progress {
+        font-size: 12px;
+        color: var(--text-tertiary);
+        margin-bottom: 1rem;
+      }
+
+      /* ── Toast ── */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--accent);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+        z-index: 999;
+        white-space: nowrap;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Brand bar -->
+    <div class="brand-bar">
+      <div class="brand-icon">
+        <img src="media/logo.png" alt="Mennendurance logo" />
       </div>
+      <div class="brand-sep"></div>
       <div>
-        <div class="field-group-label">Body weight (before → after)</div>
-        <div class="inline-inputs">
-          <input type="number" id="wt-before" value="75.0" step="0.1" style="width:66px" oninput="calc()">
-          <span class="unit">→</span>
-          <input type="number" id="wt-after" value="74.2" step="0.1" style="width:66px" oninput="calc()">
-          <span class="unit">kg</span>
-        </div>
+        <div class="brand-name">Mennendurance</div>
+        <div class="brand-tool">Sweat Rate Calculator</div>
       </div>
     </div>
-  </div>
 
-  <div class="section-label">Environmental conditions</div>
-  <div class="card">
-    <div class="three-col">
-      <div>
-        <div class="field-group-label">Air temperature</div>
-        <div class="inline-inputs">
-          <input type="number" id="env-temp" value="20" step="0.5" style="width:64px" oninput="calc()">
-          <span class="unit">°C</span>
-        </div>
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1>Sweat rate calculator</h1>
+        <p>
+          Track fluid in, food intake, urination, and environmental conditions
+          to estimate gross sweat loss.
+        </p>
       </div>
-      <div>
-        <div class="field-group-label">Humidity</div>
-        <div class="inline-inputs">
-          <input type="number" id="env-humidity" value="60" min="0" max="100" style="width:60px" oninput="calc()">
-          <span class="unit">%</span>
-        </div>
-      </div>
-      <div>
-        <div class="field-group-label">Wind force</div>
-        <select id="env-wind" oninput="calc()" style="width:100%;">
-          <option value="0">0 Bft — Calm</option>
-          <option value="1">1 Bft — Light air</option>
-          <option value="2">2 Bft — Light breeze</option>
-          <option value="3" selected>3 Bft — Gentle breeze</option>
-          <option value="4">4 Bft — Moderate breeze</option>
-          <option value="5">5 Bft — Fresh breeze</option>
-          <option value="6">6 Bft — Strong breeze</option>
-          <option value="7">7 Bft — High wind</option>
-          <option value="8">8 Bft — Gale</option>
-        </select>
-      </div>
-    </div>
-    <div style="margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end;">
-      <div>
-        <div class="field-group-label">Clothing</div>
-        <textarea id="env-clothing" rows="1" placeholder="e.g. tank top and shorts, sauna jacket and bib shorts…" style="width:100%;height:36px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-      </div>
-      <div>
-        <div class="field-group-label">Heat training</div>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;height:32px;user-select:none;">
-          <div class="toggle-wrap" onclick="toggleHeat()" id="heat-toggle" role="switch" aria-checked="false" aria-label="Heat training" tabindex="0" onkeydown="if(event.key===' '||event.key==='Enter')toggleHeat()">
-            <div class="toggle-knob"></div>
+
+      <div class="section-label">Session details</div>
+      <div class="card">
+        <div class="two-col">
+          <div>
+            <div class="field-group-label">Duration</div>
+            <div class="inline-inputs">
+              <input
+                type="number"
+                id="dur-h"
+                value="1"
+                min="0"
+                max="24"
+                style="width: 52px"
+                oninput="calc()"
+              />
+              <span class="unit">h</span>
+              <input
+                type="number"
+                id="dur-m"
+                value="30"
+                min="0"
+                max="59"
+                style="width: 52px"
+                oninput="calc()"
+              />
+              <span class="unit">min</span>
+            </div>
           </div>
-          <span id="heat-label" style="font-size:13px;color:var(--text-tertiary);">Off</span>
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-label">Core body temperature</div>
-  <div class="card">
-    <div class="two-col">
-      <div>
-        <div class="field-group-label">Average core temp</div>
-        <div class="inline-inputs">
-          <input type="number" id="temp-avg" value="" step="0.1" placeholder="—" style="width:72px" oninput="calc()">
-          <span class="unit">°C</span>
+          <div>
+            <div class="field-group-label">Body weight (before → after)</div>
+            <div class="inline-inputs">
+              <input
+                type="number"
+                id="wt-before"
+                value="75.0"
+                step="0.1"
+                style="width: 66px"
+                oninput="calc()"
+              />
+              <span class="unit">→</span>
+              <input
+                type="number"
+                id="wt-after"
+                value="74.2"
+                step="0.1"
+                style="width: 66px"
+                oninput="calc()"
+              />
+              <span class="unit">kg</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div>
-        <div class="field-group-label">Max core temp</div>
-        <div class="inline-inputs">
-          <input type="number" id="temp-max" value="" step="0.1" placeholder="—" style="width:72px" oninput="calc()">
-          <span class="unit">°C</span>
+
+      <div class="section-label">Environmental conditions</div>
+      <div class="card">
+        <div class="three-col">
+          <div>
+            <div class="field-group-label">Air temperature</div>
+            <div class="inline-inputs">
+              <input
+                type="number"
+                id="env-temp"
+                value="20"
+                step="0.5"
+                style="width: 64px"
+                oninput="calc()"
+              />
+              <span class="unit">°C</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-group-label">Humidity</div>
+            <div class="inline-inputs">
+              <input
+                type="number"
+                id="env-humidity"
+                value="60"
+                min="0"
+                max="100"
+                style="width: 60px"
+                oninput="calc()"
+              />
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-group-label">Wind force</div>
+            <select id="env-wind" oninput="calc()" style="width: 100%">
+              <option value="0">0 Bft — Calm</option>
+              <option value="1">1 Bft — Light air</option>
+              <option value="2">2 Bft — Light breeze</option>
+              <option value="3" selected>3 Bft — Gentle breeze</option>
+              <option value="4">4 Bft — Moderate breeze</option>
+              <option value="5">5 Bft — Fresh breeze</option>
+              <option value="6">6 Bft — Strong breeze</option>
+              <option value="7">7 Bft — High wind</option>
+              <option value="8">8 Bft — Gale</option>
+            </select>
+          </div>
+        </div>
+        <div
+          style="
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: end;
+          "
+        >
+          <div>
+            <div class="field-group-label">Clothing</div>
+            <textarea
+              id="env-clothing"
+              rows="1"
+              placeholder="e.g. tank top and shorts, sauna jacket and bib shorts…"
+              style="width: 100%; height: 36px"
+              oninput="
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+              "
+            ></textarea>
+          </div>
+          <div>
+            <div class="field-group-label">Heat training</div>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                height: 32px;
+                user-select: none;
+              "
+            >
+              <div
+                class="toggle-wrap"
+                onclick="toggleHeat()"
+                id="heat-toggle"
+                role="switch"
+                aria-checked="false"
+                aria-label="Heat training"
+                tabindex="0"
+                onkeydown="
+                  if (event.key === ' ' || event.key === 'Enter') toggleHeat();
+                "
+              >
+                <div class="toggle-knob"></div>
+              </div>
+              <span
+                id="heat-label"
+                style="font-size: 13px; color: var(--text-tertiary)"
+                >Off</span
+              >
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Core body temperature</div>
+      <div class="card">
+        <div class="two-col">
+          <div>
+            <div class="field-group-label">Average core temp</div>
+            <div class="inline-inputs">
+              <input
+                type="number"
+                id="temp-avg"
+                value=""
+                step="0.1"
+                placeholder="—"
+                style="width: 72px"
+                oninput="calc()"
+              />
+              <span class="unit">°C</span>
+            </div>
+          </div>
+          <div>
+            <div class="field-group-label">Max core temp</div>
+            <div class="inline-inputs">
+              <input
+                type="number"
+                id="temp-max"
+                value=""
+                step="0.1"
+                placeholder="—"
+                style="width: 72px"
+                oninput="calc()"
+              />
+              <span class="unit">°C</span>
+            </div>
+          </div>
+        </div>
+        <p
+          style="
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 10px;
+            line-height: 1.5;
+          "
+        >
+          Optional — leave blank if not measured. Normal resting core temp ≈
+          37°C; exercise typically raises this to 38–40°C.
+        </p>
+      </div>
+
+      <div class="section-label">Fluid intake</div>
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-droplet" aria-hidden="true"></i> Drinks consumed
+        </div>
+        <div id="fluid-list">
+          <div class="field-row">
+            <span class="field-label">Water / plain drink</span>
+            <div class="field-input">
+              <input
+                type="number"
+                value="750"
+                min="0"
+                style="width: 72px"
+                data-fluid
+                oninput="calc()"
+              /><span class="unit">ml</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Sports drink / gel fluid</span>
+            <div class="field-input">
+              <input
+                type="number"
+                value="500"
+                min="0"
+                style="width: 72px"
+                data-fluid
+                oninput="calc()"
+              /><span class="unit">ml</span>
+            </div>
+          </div>
+        </div>
+        <button class="add-btn" onclick="addFluid()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Add drink
+        </button>
+      </div>
+
+      <div class="section-label">Food intake</div>
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-apple" aria-hidden="true"></i> Solid food eaten
+        </div>
+        <p class="food-hint">
+          Water content of food contributes ~0.6 ml per gram of solid food
+          (mixed diet estimate).
+        </p>
+        <div id="food-list">
+          <div class="field-row">
+            <span class="field-label">Energy bars / gels / solids</span>
+            <div class="field-input">
+              <input
+                type="number"
+                value="120"
+                min="0"
+                style="width: 72px"
+                data-food
+                oninput="calc()"
+              /><span class="unit">g</span>
+            </div>
+          </div>
+        </div>
+        <button class="add-btn" onclick="addFood()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Add food item
+        </button>
+      </div>
+
+      <div class="section-label">Urination</div>
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-toilet-paper" aria-hidden="true"></i> Bathroom breaks
+        </div>
+        <div id="urine-list"></div>
+        <button class="add-btn" onclick="addUrine()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Add bathroom break
+        </button>
+        <div class="default-note">
+          <i class="ti ti-info-circle" aria-hidden="true"></i>
+          <span
+            >If you can't measure, each break defaults to
+            <strong>250 ml</strong> — a conservative average for exercise
+            conditions. Edit any break to override.</span
+          >
+        </div>
+      </div>
+
+      <hr class="divider" />
+      <div class="section-label">Results</div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="m-label">Total fluid in</div>
+          <div class="m-value" id="r-in">—</div>
+          <div class="m-unit">ml</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Urine output</div>
+          <div class="m-value" id="r-urine">—</div>
+          <div class="m-unit">ml</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Weight loss</div>
+          <div class="m-value" id="r-wt">—</div>
+          <div class="m-unit">g → ml fluid</div>
+        </div>
+        <div class="metric-card c-blue" id="card-gross">
+          <div class="m-label">Gross sweat loss</div>
+          <div class="m-value" id="r-gross">—</div>
+          <div class="m-unit">ml</div>
+        </div>
+        <div class="metric-card c-blue" id="card-rate">
+          <div class="m-label">Sweat rate</div>
+          <div class="m-value" id="r-rate">—</div>
+          <div class="m-unit">ml / hr</div>
+        </div>
+        <div class="metric-card" id="card-deficit">
+          <div class="m-label">Net fluid deficit</div>
+          <div class="m-value" id="r-deficit">—</div>
+          <div class="m-unit">ml</div>
+        </div>
+        <div class="metric-card" id="card-pct">
+          <div class="m-label">% body weight lost</div>
+          <div class="m-value" id="r-pct">—</div>
+          <div class="m-unit">%</div>
+        </div>
+      </div>
+
+      <div class="sweat-bar-wrap">
+        <div class="bar-labels">
+          <span>Dehydration level</span><span id="bar-pct-label">—</span>
+        </div>
+        <div class="bar-track">
+          <div
+            class="bar-fill"
+            id="bar-fill"
+            style="width: 0%; background-color: var(--green)"
+          ></div>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <span class="status-pill pill-green" id="status-pill">—</span>
+        <span class="status-text" id="status-text"></span>
+      </div>
+
+      <button class="save-btn" id="save-btn" onclick="saveSession()">
+        <i class="ti ti-device-floppy" aria-hidden="true"></i> Save session to
+        log
+      </button>
+
+      <div class="footnote">
+        <strong>Formula:</strong> Gross sweat loss = weight loss (g→ml) + total
+        fluid in − urine output. Net deficit = gross sweat loss − drinks
+        consumed. 1 g body mass ≈ 1 ml fluid. Food water: 0.6 ml/g.
+      </div>
+
+      <!-- SESSION LOG -->
+      <div class="log-section">
+        <div class="log-header">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <h2>Session log</h2>
+            <span class="log-count" id="log-count"></span>
+          </div>
+          <div class="log-actions">
+            <button class="log-btn import" onclick="triggerImport()">
+              <i class="ti ti-upload" aria-hidden="true"></i> Import CSV
+            </button>
+            <button class="log-btn export" onclick="exportCSV()">
+              <i class="ti ti-download" aria-hidden="true"></i> Export CSV
+            </button>
+            <button class="log-btn clear-all" onclick="clearAll()">
+              <i class="ti ti-trash" aria-hidden="true"></i> Clear all
+            </button>
+          </div>
+        </div>
+        <div id="log-container"></div>
+      </div>
+    </div>
+
+    <!-- Session summary modal -->
+    <div
+      class="summary-overlay hidden"
+      id="summary-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="summary-title"
+    >
+      <div class="summary-modal">
+        <div class="summary-header">
+          <div class="summary-header-left">
+            <h3 id="summary-title"></h3>
+            <p id="summary-subtitle"></p>
+          </div>
+          <button
+            class="summary-close"
+            onclick="closeSummary()"
+            aria-label="Close summary"
+          >
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="summary-body" id="summary-body"></div>
+        <div class="summary-footer">
+          <button class="summary-del-btn" id="summary-del-btn">
+            <i class="ti ti-trash" aria-hidden="true"></i> Delete session
+          </button>
         </div>
       </div>
     </div>
-    <p style="font-size:11px;color:var(--text-tertiary);margin-top:10px;line-height:1.5;">Optional — leave blank if not measured. Normal resting core temp ≈ 37°C; exercise typically raises this to 38–40°C.</p>
-  </div>
 
-  <div class="section-label">Fluid intake</div>
-  <div class="card">
-    <div class="card-title"><i class="ti ti-droplet" aria-hidden="true"></i> Drinks consumed</div>
-    <div id="fluid-list">
-      <div class="field-row">
-        <span class="field-label">Water / plain drink</span>
-        <div class="field-input"><input type="number" value="750" min="0" style="width:72px" data-fluid oninput="calc()"><span class="unit">ml</span></div>
-      </div>
-      <div class="field-row">
-        <span class="field-label">Sports drink / gel fluid</span>
-        <div class="field-input"><input type="number" value="500" min="0" style="width:72px" data-fluid oninput="calc()"><span class="unit">ml</span></div>
-      </div>
-    </div>
-    <button class="add-btn" onclick="addFluid()"><i class="ti ti-plus" aria-hidden="true"></i> Add drink</button>
-  </div>
+    <!-- hidden file input for import -->
+    <input
+      type="file"
+      id="import-input"
+      accept=".csv"
+      multiple
+      style="display: none"
+      onchange="handleImport(this)"
+    />
 
-  <div class="section-label">Food intake</div>
-  <div class="card">
-    <div class="card-title"><i class="ti ti-apple" aria-hidden="true"></i> Solid food eaten</div>
-    <p class="food-hint">Water content of food contributes ~0.6 ml per gram of solid food (mixed diet estimate).</p>
-    <div id="food-list">
-      <div class="field-row">
-        <span class="field-label">Energy bars / gels / solids</span>
-        <div class="field-input"><input type="number" value="120" min="0" style="width:72px" data-food oninput="calc()"><span class="unit">g</span></div>
-      </div>
-    </div>
-    <button class="add-btn" onclick="addFood()"><i class="ti ti-plus" aria-hidden="true"></i> Add food item</button>
-  </div>
-
-  <div class="section-label">Urination</div>
-  <div class="card">
-    <div class="card-title"><i class="ti ti-toilet-paper" aria-hidden="true"></i> Bathroom breaks</div>
-    <div id="urine-list"></div>
-    <button class="add-btn" onclick="addUrine()"><i class="ti ti-plus" aria-hidden="true"></i> Add bathroom break</button>
-    <div class="default-note">
-      <i class="ti ti-info-circle" aria-hidden="true"></i>
-      <span>If you can't measure, each break defaults to <strong>250 ml</strong> — a conservative average for exercise conditions. Edit any break to override.</span>
-    </div>
-  </div>
-
-  <hr class="divider">
-  <div class="section-label">Results</div>
-
-  <div class="metric-grid">
-    <div class="metric-card"><div class="m-label">Total fluid in</div><div class="m-value" id="r-in">—</div><div class="m-unit">ml</div></div>
-    <div class="metric-card"><div class="m-label">Urine output</div><div class="m-value" id="r-urine">—</div><div class="m-unit">ml</div></div>
-    <div class="metric-card"><div class="m-label">Weight loss</div><div class="m-value" id="r-wt">—</div><div class="m-unit">g → ml fluid</div></div>
-    <div class="metric-card c-blue" id="card-gross"><div class="m-label">Gross sweat loss</div><div class="m-value" id="r-gross">—</div><div class="m-unit">ml</div></div>
-    <div class="metric-card c-blue" id="card-rate"><div class="m-label">Sweat rate</div><div class="m-value" id="r-rate">—</div><div class="m-unit">ml / hr</div></div>
-    <div class="metric-card" id="card-deficit"><div class="m-label">Net fluid deficit</div><div class="m-value" id="r-deficit">—</div><div class="m-unit">ml</div></div>
-    <div class="metric-card" id="card-pct"><div class="m-label">% body weight lost</div><div class="m-value" id="r-pct">—</div><div class="m-unit">%</div></div>
-  </div>
-
-  <div class="sweat-bar-wrap">
-    <div class="bar-labels"><span>Dehydration level</span><span id="bar-pct-label">—</span></div>
-    <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%;background-color:var(--green);"></div></div>
-  </div>
-
-  <div class="status-row">
-    <span class="status-pill pill-green" id="status-pill">—</span>
-    <span class="status-text" id="status-text"></span>
-  </div>
-
-  <button class="save-btn" id="save-btn" onclick="saveSession()">
-    <i class="ti ti-device-floppy" aria-hidden="true"></i> Save session to log
-  </button>
-
-  <div class="footnote">
-    <strong>Formula:</strong> Gross sweat loss = weight loss (g→ml) + total fluid in − urine output. Net deficit = gross sweat loss − drinks consumed. 1 g body mass ≈ 1 ml fluid. Food water: 0.6 ml/g.
-  </div>
-
-  <!-- SESSION LOG -->
-  <div class="log-section">
-    <div class="log-header">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <h2>Session log</h2>
-        <span class="log-count" id="log-count"></span>
-      </div>
-      <div class="log-actions">
-        <button class="log-btn import" onclick="triggerImport()"><i class="ti ti-upload" aria-hidden="true"></i> Import CSV</button>
-        <button class="log-btn export" onclick="exportCSV()"><i class="ti ti-download" aria-hidden="true"></i> Export CSV</button>
-        <button class="log-btn clear-all" onclick="clearAll()"><i class="ti ti-trash" aria-hidden="true"></i> Clear all</button>
+    <!-- Conflict resolution modal -->
+    <div
+      class="modal-overlay hidden"
+      id="conflict-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="conflict-title"
+    >
+      <div class="modal">
+        <h3 id="conflict-title">Duplicate session found</h3>
+        <p class="modal-sub">
+          This session ID already exists in your log with different data. Which
+          version do you want to keep?
+        </p>
+        <div class="modal-progress" id="conflict-progress"></div>
+        <div class="conflict-grid" id="conflict-grid"></div>
+        <div class="modal-actions">
+          <button
+            class="modal-btn keep-existing-btn"
+            onclick="resolveConflict('existing')"
+          >
+            <i class="ti ti-database" aria-hidden="true"></i> Keep existing
+          </button>
+          <button
+            class="modal-btn keep-imported-btn"
+            onclick="resolveConflict('imported')"
+          >
+            <i class="ti ti-upload" aria-hidden="true"></i> Keep imported
+          </button>
+        </div>
       </div>
     </div>
-    <div id="log-container"></div>
-  </div>
-</div>
 
-<!-- Session summary modal -->
-<div class="summary-overlay hidden" id="summary-modal" role="dialog" aria-modal="true" aria-labelledby="summary-title">
-  <div class="summary-modal">
-    <div class="summary-header">
-      <div class="summary-header-left">
-        <h3 id="summary-title"></h3>
-        <p id="summary-subtitle"></p>
-      </div>
-      <button class="summary-close" onclick="closeSummary()" aria-label="Close summary"><i class="ti ti-x" aria-hidden="true"></i></button>
-    </div>
-    <div class="summary-body" id="summary-body"></div>
-    <div class="summary-footer">
-      <button class="summary-del-btn" id="summary-del-btn"><i class="ti ti-trash" aria-hidden="true"></i> Delete session</button>
-    </div>
-  </div>
-</div>
+    <div class="toast" id="toast"></div>
 
-<!-- hidden file input for import -->
-<input type="file" id="import-input" accept=".csv" multiple style="display:none;" onchange="handleImport(this)">
+    <script>
+      const DEFAULT_URINE_ML = 250;
+      const STORAGE_KEY = "sweat_rate_sessions_v2";
+      let urineBreaks = [],
+        urineCounter = 0,
+        lastResults = {};
 
-<!-- Conflict resolution modal -->
-<div class="modal-overlay hidden" id="conflict-modal" role="dialog" aria-modal="true" aria-labelledby="conflict-title">
-  <div class="modal">
-    <h3 id="conflict-title">Duplicate session found</h3>
-    <p class="modal-sub">This session ID already exists in your log with different data. Which version do you want to keep?</p>
-    <div class="modal-progress" id="conflict-progress"></div>
-    <div class="conflict-grid" id="conflict-grid"></div>
-    <div class="modal-actions">
-      <button class="modal-btn keep-existing-btn" onclick="resolveConflict('existing')"><i class="ti ti-database" aria-hidden="true"></i> Keep existing</button>
-      <button class="modal-btn keep-imported-btn" onclick="resolveConflict('imported')"><i class="ti ti-upload" aria-hidden="true"></i> Keep imported</button>
-    </div>
-  </div>
-</div>
+      /* ── Heat training toggle ── */
+      function toggleHeat() {
+        const el = document.getElementById("heat-toggle");
+        const on = el.getAttribute("aria-checked") !== "true";
+        el.setAttribute("aria-checked", on ? "true" : "false");
+        document.getElementById("heat-label").textContent = on ? "On" : "Off";
+        document.getElementById("heat-label").style.color = on
+          ? "var(--accent)"
+          : "var(--text-tertiary)";
+      }
+      function getHeat() {
+        return (
+          document
+            .getElementById("heat-toggle")
+            .getAttribute("aria-checked") === "true"
+        );
+      }
 
-<div class="toast" id="toast"></div>
+      /* ── Fluid / food rows ── */
+      function addFluid() {
+        const list = document.getElementById("fluid-list");
+        const row = document.createElement("div");
+        row.className = "field-row";
+        row.innerHTML = `<span class="field-label"><input type="text" placeholder="Drink name" style="border:none;background:none;font-size:13px;color:var(--text-secondary);width:130px;height:auto;padding:0;box-shadow:none;outline:none;"></span><div class="field-input"><input type="number" value="500" min="0" style="width:72px" data-fluid oninput="calc()"><span class="unit">ml</span></div><button class="remove-btn" onclick="this.closest('.field-row').remove();calc()" aria-label="Remove drink"><i class="ti ti-x" aria-hidden="true"></i></button>`;
+        list.appendChild(row);
+        calc();
+      }
+      function addFood() {
+        const list = document.getElementById("food-list");
+        const row = document.createElement("div");
+        row.className = "field-row";
+        row.innerHTML = `<span class="field-label"><input type="text" placeholder="Food item" style="border:none;background:none;font-size:13px;color:var(--text-secondary);width:130px;height:auto;padding:0;box-shadow:none;outline:none;"></span><div class="field-input"><input type="number" value="50" min="0" style="width:72px" data-food oninput="calc()"><span class="unit">g</span></div><button class="remove-btn" onclick="this.closest('.field-row').remove();calc()" aria-label="Remove food item"><i class="ti ti-x" aria-hidden="true"></i></button>`;
+        list.appendChild(row);
+        calc();
+      }
 
-<script>
-const DEFAULT_URINE_ML = 250;
-const STORAGE_KEY = 'sweat_rate_sessions_v2';
-let urineBreaks = [], urineCounter = 0, lastResults = {};
+      /* ── Urine ── */
+      function addUrine() {
+        urineCounter++;
+        urineBreaks.push({ id: urineCounter, ml: null });
+        renderUrine();
+        calc();
+      }
+      function removeUrine(id) {
+        urineBreaks = urineBreaks.filter((u) => u.id !== id);
+        renderUrine();
+        calc();
+      }
+      function setUrine(id, val) {
+        const u = urineBreaks.find((u) => u.id === id);
+        if (!u) return;
+        const p = parseFloat(val);
+        u.ml = isNaN(p) || val === "" ? null : p;
+        const b = document.getElementById("badge-" + id);
+        if (b) b.style.display = u.ml === null ? "inline" : "none";
+        calc();
+      }
+      function renderUrine() {
+        const list = document.getElementById("urine-list");
+        if (!urineBreaks.length) {
+          list.innerHTML =
+            '<p style="font-size:13px;color:var(--text-tertiary);padding:6px 0;">No bathroom breaks logged.</p>';
+          return;
+        }
+        list.innerHTML = urineBreaks
+          .map((u, i) => {
+            const isDefault = u.ml === null;
+            return `<div class="bathroom-row"><span class="b-num">#${i + 1}</span><span class="b-label">Break ${i + 1}</span><input type="number" value="${isDefault ? DEFAULT_URINE_ML : u.ml}" min="0" style="width:64px" oninput="setUrine(${u.id},this.value)" aria-label="Urine volume break ${i + 1}"><span class="unit">ml</span><span class="default-badge" id="badge-${u.id}" style="display:${isDefault ? "inline" : "none"};">default</span><button class="remove-btn" onclick="removeUrine(${u.id})" aria-label="Remove break ${i + 1}"><i class="ti ti-x" aria-hidden="true"></i></button></div>`;
+          })
+          .join("");
+      }
 
-/* ── Heat training toggle ── */
-function toggleHeat() {
-  const el = document.getElementById('heat-toggle');
-  const on = el.getAttribute('aria-checked') !== 'true';
-  el.setAttribute('aria-checked', on ? 'true' : 'false');
-  document.getElementById('heat-label').textContent = on ? 'On' : 'Off';
-  document.getElementById('heat-label').style.color = on ? 'var(--blue-text)' : 'var(--text-tertiary)';
-}
-function getHeat() { return document.getElementById('heat-toggle').getAttribute('aria-checked') === 'true'; }
+      /* ── Calc ── */
+      function sumSel(sel) {
+        return Array.from(document.querySelectorAll(sel)).reduce(
+          (a, el) => a + (parseFloat(el.value) || 0),
+          0,
+        );
+      }
+      function calc() {
+        const durH = parseFloat(document.getElementById("dur-h").value) || 0;
+        const durM = parseFloat(document.getElementById("dur-m").value) || 0;
+        const durHrs = durH + durM / 60;
+        const wtBefore =
+          parseFloat(document.getElementById("wt-before").value) || 0;
+        const wtAfter =
+          parseFloat(document.getElementById("wt-after").value) || 0;
+        const wtLossG = Math.max(0, (wtBefore - wtAfter) * 1000);
+        const fluidIn = sumSel("[data-fluid]");
+        const foodG = sumSel("[data-food]");
+        const totalIn = fluidIn + foodG * 0.6;
+        const urineTotal = urineBreaks.reduce(
+          (a, u) => a + (u.ml !== null ? u.ml : DEFAULT_URINE_ML),
+          0,
+        );
+        const grossSweat = Math.max(0, wtLossG + totalIn - urineTotal);
+        const sweatRate = durHrs > 0 ? grossSweat / durHrs : 0;
+        const deficit = grossSweat - fluidIn;
+        const pctLost = wtBefore > 0 ? (wtLossG / (wtBefore * 1000)) * 100 : 0;
 
-/* ── Fluid / food rows ── */
-function addFluid() {
-  const list = document.getElementById('fluid-list');
-  const row = document.createElement('div');
-  row.className = 'field-row';
-  row.innerHTML = `<span class="field-label"><input type="text" placeholder="Drink name" style="border:none;background:none;font-size:13px;color:var(--text-secondary);width:130px;height:auto;padding:0;box-shadow:none;outline:none;"></span><div class="field-input"><input type="number" value="500" min="0" style="width:72px" data-fluid oninput="calc()"><span class="unit">ml</span></div><button class="remove-btn" onclick="this.closest('.field-row').remove();calc()" aria-label="Remove drink"><i class="ti ti-x" aria-hidden="true"></i></button>`;
-  list.appendChild(row); calc();
-}
-function addFood() {
-  const list = document.getElementById('food-list');
-  const row = document.createElement('div');
-  row.className = 'field-row';
-  row.innerHTML = `<span class="field-label"><input type="text" placeholder="Food item" style="border:none;background:none;font-size:13px;color:var(--text-secondary);width:130px;height:auto;padding:0;box-shadow:none;outline:none;"></span><div class="field-input"><input type="number" value="50" min="0" style="width:72px" data-food oninput="calc()"><span class="unit">g</span></div><button class="remove-btn" onclick="this.closest('.field-row').remove();calc()" aria-label="Remove food item"><i class="ti ti-x" aria-hidden="true"></i></button>`;
-  list.appendChild(row); calc();
-}
+        document.getElementById("r-in").textContent = Math.round(totalIn);
+        document.getElementById("r-urine").textContent = Math.round(urineTotal);
+        document.getElementById("r-wt").textContent = Math.round(wtLossG);
+        document.getElementById("r-gross").textContent = Math.round(grossSweat);
+        document.getElementById("r-rate").textContent = Math.round(
+          Math.max(0, sweatRate),
+        );
+        document.getElementById("r-deficit").textContent = Math.round(deficit);
+        document.getElementById("r-pct").textContent = pctLost.toFixed(1);
+        document.getElementById("bar-pct-label").textContent =
+          pctLost.toFixed(1) + "%";
+        const barW = Math.min(100, (pctLost / 4) * 100).toFixed(1);
+        const bar = document.getElementById("bar-fill");
+        bar.style.width = barW + "%";
 
-/* ── Urine ── */
-function addUrine() { urineCounter++; urineBreaks.push({ id: urineCounter, ml: null }); renderUrine(); calc(); }
-function removeUrine(id) { urineBreaks = urineBreaks.filter(u => u.id !== id); renderUrine(); calc(); }
-function setUrine(id, val) {
-  const u = urineBreaks.find(u => u.id === id); if (!u) return;
-  const p = parseFloat(val); u.ml = isNaN(p) || val === '' ? null : p;
-  const b = document.getElementById('badge-' + id); if (b) b.style.display = u.ml === null ? 'inline' : 'none';
-  calc();
-}
-function renderUrine() {
-  const list = document.getElementById('urine-list');
-  if (!urineBreaks.length) { list.innerHTML = '<p style="font-size:13px;color:var(--text-tertiary);padding:6px 0;">No bathroom breaks logged.</p>'; return; }
-  list.innerHTML = urineBreaks.map((u, i) => {
-    const isDefault = u.ml === null;
-    return `<div class="bathroom-row"><span class="b-num">#${i+1}</span><span class="b-label">Break ${i+1}</span><input type="number" value="${isDefault ? DEFAULT_URINE_ML : u.ml}" min="0" style="width:64px" oninput="setUrine(${u.id},this.value)" aria-label="Urine volume break ${i+1}"><span class="unit">ml</span><span class="default-badge" id="badge-${u.id}" style="display:${isDefault?'inline':'none'};">default</span><button class="remove-btn" onclick="removeUrine(${u.id})" aria-label="Remove break ${i+1}"><i class="ti ti-x" aria-hidden="true"></i></button></div>`;
-  }).join('');
-}
+        ["card-deficit", "card-pct"].forEach((id) => {
+          document.getElementById(id).className = "metric-card";
+        });
+        const pill = document.getElementById("status-pill");
+        const txt = document.getElementById("status-text");
+        let statusLabel;
+        if (pctLost < 1) {
+          bar.style.backgroundColor = "var(--green)";
+          pill.className = "status-pill pill-green";
+          statusLabel = "Well hydrated";
+          pill.textContent = statusLabel;
+          txt.textContent =
+            "Fluid loss under 1% body weight — minimal performance impact.";
+          document.getElementById("card-deficit").classList.add("c-green");
+          document.getElementById("card-pct").classList.add("c-green");
+        } else if (pctLost < 2) {
+          bar.style.backgroundColor = "var(--teal)";
+          pill.className = "status-pill pill-blue";
+          statusLabel = "Acceptable";
+          pill.textContent = statusLabel;
+          txt.textContent =
+            "Loss 1–2% — slight impairment possible in heat. Rehydrate promptly after.";
+          document.getElementById("card-deficit").classList.add("c-blue");
+          document.getElementById("card-pct").classList.add("c-blue");
+        } else if (pctLost < 3) {
+          bar.style.backgroundColor = "var(--amber)";
+          pill.className = "status-pill pill-amber";
+          statusLabel = "Mild dehydration";
+          pill.textContent = statusLabel;
+          txt.textContent =
+            "Loss 2–3% — noticeable performance decline. Prioritise post-session rehydration.";
+          document.getElementById("card-deficit").classList.add("c-amber");
+          document.getElementById("card-pct").classList.add("c-amber");
+        } else {
+          bar.style.backgroundColor = "var(--red)";
+          pill.className = "status-pill pill-red";
+          statusLabel = "Significant dehydration";
+          pill.textContent = statusLabel;
+          txt.textContent =
+            "Loss >3% — significant performance and health risk. Seek advice if symptomatic.";
+          document.getElementById("card-deficit").classList.add("c-red");
+          document.getElementById("card-pct").classList.add("c-red");
+        }
+        lastResults = {
+          durHrs,
+          wtBefore,
+          wtAfter,
+          wtLossG,
+          fluidIn,
+          foodG,
+          totalIn,
+          urineTotal,
+          urineBreaksCount: urineBreaks.length,
+          grossSweat,
+          sweatRate: Math.max(0, sweatRate),
+          deficit,
+          pctLost,
+          statusLabel,
+        };
+      }
 
-/* ── Calc ── */
-function sumSel(sel) { return Array.from(document.querySelectorAll(sel)).reduce((a, el) => a + (parseFloat(el.value) || 0), 0); }
-function calc() {
-  const durH = parseFloat(document.getElementById('dur-h').value) || 0;
-  const durM = parseFloat(document.getElementById('dur-m').value) || 0;
-  const durHrs = durH + durM / 60;
-  const wtBefore = parseFloat(document.getElementById('wt-before').value) || 0;
-  const wtAfter  = parseFloat(document.getElementById('wt-after').value)  || 0;
-  const wtLossG  = Math.max(0, (wtBefore - wtAfter) * 1000);
-  const fluidIn  = sumSel('[data-fluid]');
-  const foodG    = sumSel('[data-food]');
-  const totalIn  = fluidIn + foodG * 0.6;
-  const urineTotal = urineBreaks.reduce((a, u) => a + (u.ml !== null ? u.ml : DEFAULT_URINE_ML), 0);
-  const grossSweat = Math.max(0, wtLossG + totalIn - urineTotal);
-  const sweatRate  = durHrs > 0 ? grossSweat / durHrs : 0;
-  const deficit    = grossSweat - fluidIn;
-  const pctLost    = wtBefore > 0 ? (wtLossG / (wtBefore * 1000)) * 100 : 0;
+      /* ── Storage ── */
+      function getSessions() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      }
+      function putSessions(arr) {
+        // Sort by id descending (newest first)
+        arr.sort((a, b) => b.id - a.id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+      }
 
-  document.getElementById('r-in').textContent      = Math.round(totalIn);
-  document.getElementById('r-urine').textContent   = Math.round(urineTotal);
-  document.getElementById('r-wt').textContent      = Math.round(wtLossG);
-  document.getElementById('r-gross').textContent   = Math.round(grossSweat);
-  document.getElementById('r-rate').textContent    = Math.round(Math.max(0, sweatRate));
-  document.getElementById('r-deficit').textContent = Math.round(deficit);
-  document.getElementById('r-pct').textContent     = pctLost.toFixed(1);
-  document.getElementById('bar-pct-label').textContent = pctLost.toFixed(1) + '%';
-  const barW = Math.min(100, (pctLost / 4) * 100).toFixed(1);
-  const bar  = document.getElementById('bar-fill');
-  bar.style.width = barW + '%';
+      /* ── Save ── */
+      function saveSession() {
+        const now = new Date();
+        const session = {
+          id: Date.now(),
+          date: now.toLocaleDateString("nl-NL", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }),
+          time: now.toLocaleTimeString("nl-NL", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          durH: parseInt(document.getElementById("dur-h").value) || 0,
+          durM: parseInt(document.getElementById("dur-m").value) || 0,
+          wtBefore: document.getElementById("wt-before").value,
+          wtAfter: document.getElementById("wt-after").value,
+          temp: document.getElementById("env-temp").value,
+          humidity: document.getElementById("env-humidity").value,
+          wind: document.getElementById("env-wind").value,
+          clothing: document.getElementById("env-clothing").value.trim(),
+          heatTraining: getHeat(),
+          tempAvg: document.getElementById("temp-avg").value,
+          tempMax: document.getElementById("temp-max").value,
+          fluidIn: Math.round(lastResults.fluidIn),
+          foodG: Math.round(lastResults.foodG),
+          urineTotal: Math.round(lastResults.urineTotal),
+          urineBreaksCount: lastResults.urineBreaksCount,
+          grossSweat: Math.round(lastResults.grossSweat),
+          sweatRate: Math.round(lastResults.sweatRate),
+          deficit: Math.round(lastResults.deficit),
+          pctLost: lastResults.pctLost.toFixed(1),
+          status: lastResults.statusLabel,
+        };
+        const sessions = getSessions();
+        sessions.push(session);
+        putSessions(sessions);
+        const btn = document.getElementById("save-btn");
+        btn.classList.add("saved");
+        btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Saved!';
+        setTimeout(() => {
+          btn.classList.remove("saved");
+          btn.innerHTML =
+            '<i class="ti ti-device-floppy" aria-hidden="true"></i> Save session to log';
+        }, 2000);
+        renderLog();
+        showToast("Session saved to log");
+      }
 
-  ['card-deficit','card-pct'].forEach(id => { document.getElementById(id).className = 'metric-card'; });
-  const pill = document.getElementById('status-pill');
-  const txt  = document.getElementById('status-text');
-  let statusLabel;
-  if (pctLost < 1) {
-    bar.style.backgroundColor = 'var(--green)'; pill.className = 'status-pill pill-green';
-    statusLabel = 'Well hydrated'; pill.textContent = statusLabel;
-    txt.textContent = 'Fluid loss under 1% body weight — minimal performance impact.';
-    document.getElementById('card-deficit').classList.add('c-green'); document.getElementById('card-pct').classList.add('c-green');
-  } else if (pctLost < 2) {
-    bar.style.backgroundColor = 'var(--teal)'; pill.className = 'status-pill pill-blue';
-    statusLabel = 'Acceptable'; pill.textContent = statusLabel;
-    txt.textContent = 'Loss 1–2% — slight impairment possible in heat. Rehydrate promptly after.';
-    document.getElementById('card-deficit').classList.add('c-blue'); document.getElementById('card-pct').classList.add('c-blue');
-  } else if (pctLost < 3) {
-    bar.style.backgroundColor = 'var(--amber)'; pill.className = 'status-pill pill-amber';
-    statusLabel = 'Mild dehydration'; pill.textContent = statusLabel;
-    txt.textContent = 'Loss 2–3% — noticeable performance decline. Prioritise post-session rehydration.';
-    document.getElementById('card-deficit').classList.add('c-amber'); document.getElementById('card-pct').classList.add('c-amber');
-  } else {
-    bar.style.backgroundColor = 'var(--red)'; pill.className = 'status-pill pill-red';
-    statusLabel = 'Significant dehydration'; pill.textContent = statusLabel;
-    txt.textContent = 'Loss >3% — significant performance and health risk. Seek advice if symptomatic.';
-    document.getElementById('card-deficit').classList.add('c-red'); document.getElementById('card-pct').classList.add('c-red');
-  }
-  lastResults = { durHrs, wtBefore, wtAfter, wtLossG, fluidIn, foodG, totalIn, urineTotal, urineBreaksCount: urineBreaks.length, grossSweat, sweatRate: Math.max(0, sweatRate), deficit, pctLost, statusLabel };
-}
-
-/* ── Storage ── */
-function getSessions() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
-function putSessions(arr) {
-  // Sort by id descending (newest first)
-  arr.sort((a, b) => b.id - a.id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-}
-
-/* ── Save ── */
-function saveSession() {
-  const now = new Date();
-  const session = {
-    id: Date.now(),
-    date: now.toLocaleDateString('nl-NL', { day:'2-digit', month:'2-digit', year:'numeric' }),
-    time: now.toLocaleTimeString('nl-NL', { hour:'2-digit', minute:'2-digit' }),
-    durH: parseInt(document.getElementById('dur-h').value) || 0,
-    durM: parseInt(document.getElementById('dur-m').value) || 0,
-    wtBefore: document.getElementById('wt-before').value,
-    wtAfter:  document.getElementById('wt-after').value,
-    temp:     document.getElementById('env-temp').value,
-    humidity: document.getElementById('env-humidity').value,
-    wind:     document.getElementById('env-wind').value,
-    clothing: document.getElementById('env-clothing').value.trim(),
-    heatTraining: getHeat(),
-    tempAvg:  document.getElementById('temp-avg').value,
-    tempMax:  document.getElementById('temp-max').value,
-    fluidIn:  Math.round(lastResults.fluidIn),
-    foodG:    Math.round(lastResults.foodG),
-    urineTotal: Math.round(lastResults.urineTotal),
-    urineBreaksCount: lastResults.urineBreaksCount,
-    grossSweat: Math.round(lastResults.grossSweat),
-    sweatRate: Math.round(lastResults.sweatRate),
-    deficit:  Math.round(lastResults.deficit),
-    pctLost:  lastResults.pctLost.toFixed(1),
-    status:   lastResults.statusLabel
-  };
-  const sessions = getSessions();
-  sessions.push(session);
-  putSessions(sessions);
-  const btn = document.getElementById('save-btn');
-  btn.classList.add('saved');
-  btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Saved!';
-  setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = '<i class="ti ti-device-floppy" aria-hidden="true"></i> Save session to log'; }, 2000);
-  renderLog();
-  showToast('Session saved to log');
-}
-
-/* ── Log render ── */
-function renderLog() {
-  const sessions = getSessions();
-  const container = document.getElementById('log-container');
-  const countEl = document.getElementById('log-count');
-  countEl.textContent = sessions.length ? `${sessions.length} session${sessions.length !== 1 ? 's' : ''}` : '';
-  if (!sessions.length) {
-    container.innerHTML = '<div class="log-empty"><i class="ti ti-database-off" style="font-size:24px;display:block;margin-bottom:8px;opacity:0.4" aria-hidden="true"></i>No sessions saved yet. Fill in the form above and click "Save session to log".</div>';
-    return;
-  }
-  const headers = ['ID','Date','Time','Duration','Wt before','Wt after','Wt loss (g)','Temp (°C)','Humidity (%)','Wind (Bft)','Clothing','Heat training','Core avg (°C)','Core max (°C)','Fluid in (ml)','Food (g)','Urine (ml)','Bathroom #','Gross sweat (ml)','Sweat rate (ml/h)','Deficit (ml)','BW loss (%)','Status'];
-  const rows = sessions.map(s => {
-    const wtLoss = Math.round((parseFloat(s.wtBefore) - parseFloat(s.wtAfter)) * 1000);
-    return `<tr onclick="openSummary(${s.id})" title="Click to view session summary">
+      /* ── Log render ── */
+      function renderLog() {
+        const sessions = getSessions();
+        const container = document.getElementById("log-container");
+        const countEl = document.getElementById("log-count");
+        countEl.textContent = sessions.length
+          ? `${sessions.length} session${sessions.length !== 1 ? "s" : ""}`
+          : "";
+        if (!sessions.length) {
+          container.innerHTML =
+            '<div class="log-empty"><i class="ti ti-database-off" style="font-size:24px;display:block;margin-bottom:8px;opacity:0.4" aria-hidden="true"></i>No sessions saved yet. Fill in the form above and click "Save session to log".</div>';
+          return;
+        }
+        const headers = [
+          "ID",
+          "Date",
+          "Time",
+          "Duration",
+          "Wt before",
+          "Wt after",
+          "Wt loss (g)",
+          "Temp (°C)",
+          "Humidity (%)",
+          "Wind (Bft)",
+          "Clothing",
+          "Heat training",
+          "Core avg (°C)",
+          "Core max (°C)",
+          "Fluid in (ml)",
+          "Food (g)",
+          "Urine (ml)",
+          "Bathroom #",
+          "Gross sweat (ml)",
+          "Sweat rate (ml/h)",
+          "Deficit (ml)",
+          "BW loss (%)",
+          "Status",
+        ];
+        const rows = sessions
+          .map((s) => {
+            const wtLoss = Math.round(
+              (parseFloat(s.wtBefore) - parseFloat(s.wtAfter)) * 1000,
+            );
+            return `<tr onclick="openSummary(${s.id})" title="Click to view session summary">
       <td style="font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;">${s.id}</td>
       <td>${s.date}</td><td>${s.time}</td>
       <td>${s.durH}h ${s.durM}m</td>
       <td>${s.wtBefore}</td><td>${s.wtAfter}</td>
-      <td>${wtLoss >= 0 ? wtLoss : '—'}</td>
-      <td>${s.temp || '—'}</td><td>${s.humidity || '—'}</td><td>${s.wind !== undefined ? s.wind : '—'}</td>
-      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="${(s.clothing||'').replace(/"/g,'&quot;')}">${s.clothing || '—'}</td>
-      <td>${s.heatTraining === true || s.heatTraining === 'true' ? '🔥 Yes' : 'No'}</td>
-      <td>${s.tempAvg || '—'}</td><td>${s.tempMax || '—'}</td>
+      <td>${wtLoss >= 0 ? wtLoss : "—"}</td>
+      <td>${s.temp || "—"}</td><td>${s.humidity || "—"}</td><td>${s.wind !== undefined ? s.wind : "—"}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="${(s.clothing || "").replace(/"/g, "&quot;")}">${s.clothing || "—"}</td>
+      <td>${s.heatTraining === true || s.heatTraining === "true" ? "🔥 Yes" : "No"}</td>
+      <td>${s.tempAvg || "—"}</td><td>${s.tempMax || "—"}</td>
       <td>${s.fluidIn}</td><td>${s.foodG}</td><td>${s.urineTotal}</td><td>${s.urineBreaksCount}</td>
       <td>${s.grossSweat}</td><td>${s.sweatRate}</td><td>${s.deficit}</td>
       <td>${s.pctLost}</td><td>${s.status}</td>
       <td onclick="event.stopPropagation()"><button class="log-del-btn" onclick="deleteSession(${s.id})" aria-label="Delete session ${s.id}"><i class="ti ti-trash" aria-hidden="true"></i></button></td>
     </tr>`;
-  }).join('');
-  container.innerHTML = `<div class="log-table-wrap"><table class="log-table"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
-}
+          })
+          .join("");
+        container.innerHTML = `<div class="log-table-wrap"><table class="log-table"><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      }
 
-function deleteSession(id) {
-  putSessions(getSessions().filter(s => s.id !== id));
-  renderLog(); showToast('Session deleted');
-}
-function clearAll() {
-  if (!confirm('Delete all saved sessions? This cannot be undone.')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  renderLog(); showToast('All sessions cleared');
-}
+      function deleteSession(id) {
+        putSessions(getSessions().filter((s) => s.id !== id));
+        renderLog();
+        showToast("Session deleted");
+      }
+      function clearAll() {
+        if (!confirm("Delete all saved sessions? This cannot be undone."))
+          return;
+        localStorage.removeItem(STORAGE_KEY);
+        renderLog();
+        showToast("All sessions cleared");
+      }
 
-/* ── CSV export ── */
-const CSV_HEADERS = ['id','date','time','durH','durM','wtBefore','wtAfter','wtLoss_g','temp','humidity','wind','clothing','tempAvg','tempMax','fluidIn','foodG','urineTotal','urineBreaksCount','grossSweat','sweatRate','deficit','pctLost','status'];
+      /* ── CSV export ── */
+      const CSV_HEADERS = [
+        "id",
+        "date",
+        "time",
+        "durH",
+        "durM",
+        "wtBefore",
+        "wtAfter",
+        "wtLoss_g",
+        "temp",
+        "humidity",
+        "wind",
+        "clothing",
+        "tempAvg",
+        "tempMax",
+        "fluidIn",
+        "foodG",
+        "urineTotal",
+        "urineBreaksCount",
+        "grossSweat",
+        "sweatRate",
+        "deficit",
+        "pctLost",
+        "status",
+      ];
 
-function escapeCSV(val) {
-  const s = String(val == null ? '' : val);
-  return (s.includes(',') || s.includes('"') || s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s;
-}
-function exportCSV() {
-  const sessions = getSessions();
-  if (!sessions.length) { showToast('No sessions to export'); return; }
-  const prettyHeaders = ['Session_ID','Date','Time','Duration_h','Duration_min','Weight_before_kg','Weight_after_kg','Weight_loss_g','Air_temp_C','Humidity_pct','Wind_Bft','Clothing','Heat_training','Core_temp_avg_C','Core_temp_max_C','Fluid_in_ml','Food_g','Urine_ml','Bathroom_breaks','Gross_sweat_ml','Sweat_rate_ml_per_h','Deficit_ml','BW_loss_pct','Status'];
-  const rows = [prettyHeaders.join(',')];
-  sessions.forEach(s => {
-    const wtLoss = Math.round((parseFloat(s.wtBefore) - parseFloat(s.wtAfter)) * 1000);
-    rows.push([s.id, s.date, s.time, s.durH, s.durM, s.wtBefore, s.wtAfter, wtLoss >= 0 ? wtLoss : '', s.temp, s.humidity, s.wind, s.clothing, (s.heatTraining === true || s.heatTraining === 'true') ? 'true' : 'false', s.tempAvg, s.tempMax, s.fluidIn, s.foodG, s.urineTotal, s.urineBreaksCount, s.grossSweat, s.sweatRate, s.deficit, s.pctLost, s.status].map(escapeCSV).join(','));
-  });
-  const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url;
-  a.download = `sweat_rate_log_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-  showToast('CSV exported');
-}
+      function escapeCSV(val) {
+        const s = String(val == null ? "" : val);
+        return s.includes(",") || s.includes('"') || s.includes("\n")
+          ? `"${s.replace(/"/g, '""')}"`
+          : s;
+      }
+      function exportCSV() {
+        const sessions = getSessions();
+        if (!sessions.length) {
+          showToast("No sessions to export");
+          return;
+        }
+        const prettyHeaders = [
+          "Session_ID",
+          "Date",
+          "Time",
+          "Duration_h",
+          "Duration_min",
+          "Weight_before_kg",
+          "Weight_after_kg",
+          "Weight_loss_g",
+          "Air_temp_C",
+          "Humidity_pct",
+          "Wind_Bft",
+          "Clothing",
+          "Heat_training",
+          "Core_temp_avg_C",
+          "Core_temp_max_C",
+          "Fluid_in_ml",
+          "Food_g",
+          "Urine_ml",
+          "Bathroom_breaks",
+          "Gross_sweat_ml",
+          "Sweat_rate_ml_per_h",
+          "Deficit_ml",
+          "BW_loss_pct",
+          "Status",
+        ];
+        const rows = [prettyHeaders.join(",")];
+        sessions.forEach((s) => {
+          const wtLoss = Math.round(
+            (parseFloat(s.wtBefore) - parseFloat(s.wtAfter)) * 1000,
+          );
+          rows.push(
+            [
+              s.id,
+              s.date,
+              s.time,
+              s.durH,
+              s.durM,
+              s.wtBefore,
+              s.wtAfter,
+              wtLoss >= 0 ? wtLoss : "",
+              s.temp,
+              s.humidity,
+              s.wind,
+              s.clothing,
+              s.heatTraining === true || s.heatTraining === "true"
+                ? "true"
+                : "false",
+              s.tempAvg,
+              s.tempMax,
+              s.fluidIn,
+              s.foodG,
+              s.urineTotal,
+              s.urineBreaksCount,
+              s.grossSweat,
+              s.sweatRate,
+              s.deficit,
+              s.pctLost,
+              s.status,
+            ]
+              .map(escapeCSV)
+              .join(","),
+          );
+        });
+        const blob = new Blob([rows.join("\n")], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `sweat_rate_log_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("CSV exported");
+      }
 
-/* ── CSV import ── */
-function triggerImport() { document.getElementById('import-input').value = ''; document.getElementById('import-input').click(); }
+      /* ── CSV import ── */
+      function triggerImport() {
+        document.getElementById("import-input").value = "";
+        document.getElementById("import-input").click();
+      }
 
-function handleImport(input) {
-  const files = Array.from(input.files);
-  if (!files.length) return;
-  const readers = files.map(f => new Promise(resolve => {
-    const r = new FileReader();
-    r.onload = e => resolve(e.target.result);
-    r.readAsText(f);
-  }));
-  Promise.all(readers).then(contents => {
-    const allImported = [];
-    let parseErrors = 0;
-    contents.forEach(text => {
-      const parsed = parseCSV(text);
-      if (parsed) allImported.push(...parsed);
-      else parseErrors++;
-    });
-    if (parseErrors > 0) showToast(`${parseErrors} file(s) could not be parsed`);
-    if (!allImported.length) { showToast('No valid sessions found in imported files'); return; }
-    processMerge(allImported);
-  });
-}
+      function handleImport(input) {
+        const files = Array.from(input.files);
+        if (!files.length) return;
+        const readers = files.map(
+          (f) =>
+            new Promise((resolve) => {
+              const r = new FileReader();
+              r.onload = (e) => resolve(e.target.result);
+              r.readAsText(f);
+            }),
+        );
+        Promise.all(readers).then((contents) => {
+          const allImported = [];
+          let parseErrors = 0;
+          contents.forEach((text) => {
+            const parsed = parseCSV(text);
+            if (parsed) allImported.push(...parsed);
+            else parseErrors++;
+          });
+          if (parseErrors > 0)
+            showToast(`${parseErrors} file(s) could not be parsed`);
+          if (!allImported.length) {
+            showToast("No valid sessions found in imported files");
+            return;
+          }
+          processMerge(allImported);
+        });
+      }
 
-function parseCSV(text) {
-  try {
-    const lines = text.trim().split('\n').filter(l => l.trim());
-    if (lines.length < 2) return null;
-    const headers = parseCSVRow(lines[0]).map(h => h.trim());
-    // Map pretty header names back to internal keys
-    const headerMap = {
-      'Session_ID': 'id', 'Date': 'date', 'Time': 'time',
-      'Duration_h': 'durH', 'Duration_min': 'durM',
-      'Weight_before_kg': 'wtBefore', 'Weight_after_kg': 'wtAfter', 'Weight_loss_g': '_wtLoss',
-      'Air_temp_C': 'temp', 'Humidity_pct': 'humidity', 'Wind_Bft': 'wind',
-      'Clothing': 'clothing', 'Heat_training': 'heatTraining', 'Core_temp_avg_C': 'tempAvg', 'Core_temp_max_C': 'tempMax',
-      'Fluid_in_ml': 'fluidIn', 'Food_g': 'foodG', 'Urine_ml': 'urineTotal',
-      'Bathroom_breaks': 'urineBreaksCount', 'Gross_sweat_ml': 'grossSweat',
-      'Sweat_rate_ml_per_h': 'sweatRate', 'Deficit_ml': 'deficit',
-      'BW_loss_pct': 'pctLost', 'Status': 'status'
-    };
-    const sessions = [];
-    for (let i = 1; i < lines.length; i++) {
-      const vals = parseCSVRow(lines[i]);
-      if (vals.length < 3) continue;
-      const s = {};
-      headers.forEach((h, idx) => {
-        const key = headerMap[h] || h;
-        if (key !== '_wtLoss') s[key] = vals[idx] !== undefined ? vals[idx].trim() : '';
-      });
-      if (!s.id) continue;
-      s.id = parseInt(s.id);
-      if (isNaN(s.id)) continue;
-      s.durH = parseInt(s.durH) || 0;
-      s.durM = parseInt(s.durM) || 0;
-      s.fluidIn = parseInt(s.fluidIn) || 0;
-      s.foodG = parseInt(s.foodG) || 0;
-      s.urineTotal = parseInt(s.urineTotal) || 0;
-      s.urineBreaksCount = parseInt(s.urineBreaksCount) || 0;
-      s.grossSweat = parseInt(s.grossSweat) || 0;
-      s.sweatRate = parseInt(s.sweatRate) || 0;
-      s.deficit = parseInt(s.deficit) || 0;
-      sessions.push(s);
-    }
-    return sessions.length ? sessions : null;
-  } catch { return null; }
-}
+      function parseCSV(text) {
+        try {
+          const lines = text
+            .trim()
+            .split("\n")
+            .filter((l) => l.trim());
+          if (lines.length < 2) return null;
+          const headers = parseCSVRow(lines[0]).map((h) => h.trim());
+          // Map pretty header names back to internal keys
+          const headerMap = {
+            Session_ID: "id",
+            Date: "date",
+            Time: "time",
+            Duration_h: "durH",
+            Duration_min: "durM",
+            Weight_before_kg: "wtBefore",
+            Weight_after_kg: "wtAfter",
+            Weight_loss_g: "_wtLoss",
+            Air_temp_C: "temp",
+            Humidity_pct: "humidity",
+            Wind_Bft: "wind",
+            Clothing: "clothing",
+            Heat_training: "heatTraining",
+            Core_temp_avg_C: "tempAvg",
+            Core_temp_max_C: "tempMax",
+            Fluid_in_ml: "fluidIn",
+            Food_g: "foodG",
+            Urine_ml: "urineTotal",
+            Bathroom_breaks: "urineBreaksCount",
+            Gross_sweat_ml: "grossSweat",
+            Sweat_rate_ml_per_h: "sweatRate",
+            Deficit_ml: "deficit",
+            BW_loss_pct: "pctLost",
+            Status: "status",
+          };
+          const sessions = [];
+          for (let i = 1; i < lines.length; i++) {
+            const vals = parseCSVRow(lines[i]);
+            if (vals.length < 3) continue;
+            const s = {};
+            headers.forEach((h, idx) => {
+              const key = headerMap[h] || h;
+              if (key !== "_wtLoss")
+                s[key] = vals[idx] !== undefined ? vals[idx].trim() : "";
+            });
+            if (!s.id) continue;
+            s.id = parseInt(s.id);
+            if (isNaN(s.id)) continue;
+            s.durH = parseInt(s.durH) || 0;
+            s.durM = parseInt(s.durM) || 0;
+            s.fluidIn = parseInt(s.fluidIn) || 0;
+            s.foodG = parseInt(s.foodG) || 0;
+            s.urineTotal = parseInt(s.urineTotal) || 0;
+            s.urineBreaksCount = parseInt(s.urineBreaksCount) || 0;
+            s.grossSweat = parseInt(s.grossSweat) || 0;
+            s.sweatRate = parseInt(s.sweatRate) || 0;
+            s.deficit = parseInt(s.deficit) || 0;
+            sessions.push(s);
+          }
+          return sessions.length ? sessions : null;
+        } catch {
+          return null;
+        }
+      }
 
-// Simple CSV row parser that handles quoted fields
-function parseCSVRow(line) {
-  const result = []; let cur = ''; let inQuote = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuote && line[i+1] === '"') { cur += '"'; i++; }
-      else inQuote = !inQuote;
-    } else if (ch === ',' && !inQuote) { result.push(cur); cur = ''; }
-    else cur += ch;
-  }
-  result.push(cur); return result;
-}
+      // Simple CSV row parser that handles quoted fields
+      function parseCSVRow(line) {
+        const result = [];
+        let cur = "";
+        let inQuote = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQuote && line[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else inQuote = !inQuote;
+          } else if (ch === "," && !inQuote) {
+            result.push(cur);
+            cur = "";
+          } else cur += ch;
+        }
+        result.push(cur);
+        return result;
+      }
 
-/* ── Merge + conflict resolution ── */
-let conflictQueue = [];
-let mergeBuffer = {};   // id -> session (the working merged set)
+      /* ── Merge + conflict resolution ── */
+      let conflictQueue = [];
+      let mergeBuffer = {}; // id -> session (the working merged set)
 
-function processMerge(imported) {
-  const existing = getSessions();
-  const existingMap = {};
-  existing.forEach(s => existingMap[s.id] = s);
+      function processMerge(imported) {
+        const existing = getSessions();
+        const existingMap = {};
+        existing.forEach((s) => (existingMap[s.id] = s));
 
-  const conflicts = [];
-  const clean = [];
+        const conflicts = [];
+        const clean = [];
 
-  imported.forEach(imp => {
-    if (!existingMap[imp.id]) {
-      clean.push(imp);
-    } else {
-      // Same ID — check if data differs
-      const ex = existingMap[imp.id];
-      const differ = sessionsDiffer(ex, imp);
-      if (differ) conflicts.push({ existing: ex, imported: imp });
-      // If identical, no action needed (already in store)
-    }
-  });
+        imported.forEach((imp) => {
+          if (!existingMap[imp.id]) {
+            clean.push(imp);
+          } else {
+            // Same ID — check if data differs
+            const ex = existingMap[imp.id];
+            const differ = sessionsDiffer(ex, imp);
+            if (differ) conflicts.push({ existing: ex, imported: imp });
+            // If identical, no action needed (already in store)
+          }
+        });
 
-  // Build merge buffer starting from existing
-  existing.forEach(s => mergeBuffer[s.id] = s);
-  // Apply conflict-free new sessions
-  clean.forEach(s => mergeBuffer[s.id] = s);
+        // Build merge buffer starting from existing
+        existing.forEach((s) => (mergeBuffer[s.id] = s));
+        // Apply conflict-free new sessions
+        clean.forEach((s) => (mergeBuffer[s.id] = s));
 
-  const added = clean.length;
-  const skipped = imported.length - clean.length - conflicts.length;
+        const added = clean.length;
+        const skipped = imported.length - clean.length - conflicts.length;
 
-  if (!conflicts.length) {
-    commitMerge();
-    showToast(`Import done: ${added} added, ${imported.length - added} already up to date`);
-    return;
-  }
+        if (!conflicts.length) {
+          commitMerge();
+          showToast(
+            `Import done: ${added} added, ${imported.length - added} already up to date`,
+          );
+          return;
+        }
 
-  conflictQueue = [...conflicts];
-  showNextConflict(added, imported.length);
-}
+        conflictQueue = [...conflicts];
+        showNextConflict(added, imported.length);
+      }
 
-function sessionsDiffer(a, b) {
-  const keys = ['date','time','durH','durM','wtBefore','wtAfter','temp','humidity','wind','clothing','heatTraining','tempAvg','tempMax','fluidIn','foodG','urineTotal','urineBreaksCount','grossSweat','sweatRate','deficit','pctLost','status'];
-  return keys.some(k => String(a[k]||'').trim() !== String(b[k]||'').trim());
-}
+      function sessionsDiffer(a, b) {
+        const keys = [
+          "date",
+          "time",
+          "durH",
+          "durM",
+          "wtBefore",
+          "wtAfter",
+          "temp",
+          "humidity",
+          "wind",
+          "clothing",
+          "heatTraining",
+          "tempAvg",
+          "tempMax",
+          "fluidIn",
+          "foodG",
+          "urineTotal",
+          "urineBreaksCount",
+          "grossSweat",
+          "sweatRate",
+          "deficit",
+          "pctLost",
+          "status",
+        ];
+        return keys.some(
+          (k) => String(a[k] || "").trim() !== String(b[k] || "").trim(),
+        );
+      }
 
-function showNextConflict(addedSoFar, totalImported) {
-  if (!conflictQueue.length) {
-    commitMerge();
-    renderLog();
-    showToast(`Import done: ${addedSoFar} added, ${conflictQueue.length} conflicts resolved`);
-    return;
-  }
-  const total = conflictQueue.length + (conflictQueue._resolved || 0);
-  const resolved = conflictQueue._resolved || 0;
-  const remaining = conflictQueue.length;
+      function showNextConflict(addedSoFar, totalImported) {
+        if (!conflictQueue.length) {
+          commitMerge();
+          renderLog();
+          showToast(
+            `Import done: ${addedSoFar} added, ${conflictQueue.length} conflicts resolved`,
+          );
+          return;
+        }
+        const total = conflictQueue.length + (conflictQueue._resolved || 0);
+        const resolved = conflictQueue._resolved || 0;
+        const remaining = conflictQueue.length;
 
-  document.getElementById('conflict-progress').textContent = `Conflict ${resolved + 1} of ${resolved + remaining}`;
+        document.getElementById("conflict-progress").textContent =
+          `Conflict ${resolved + 1} of ${resolved + remaining}`;
 
-  const { existing, imported } = conflictQueue[0];
-  const keys = [
-    ['date','Date'], ['time','Time'], ['durH','Dur h'], ['durM','Dur min'],
-    ['wtBefore','Wt before'], ['wtAfter','Wt after'],
-    ['temp','Temp °C'], ['humidity','Humidity %'], ['wind','Wind Bft'],
-    ['clothing','Clothing'], ['heatTraining','Heat training'], ['tempAvg','Core avg'], ['tempMax','Core max'],
-    ['fluidIn','Fluid in ml'], ['foodG','Food g'], ['urineTotal','Urine ml'],
-    ['urineBreaksCount','Breaks'], ['grossSweat','Gross sweat'], ['sweatRate','Sweat rate'],
-    ['deficit','Deficit ml'], ['pctLost','BW loss %'], ['status','Status']
-  ];
+        const { existing, imported } = conflictQueue[0];
+        const keys = [
+          ["date", "Date"],
+          ["time", "Time"],
+          ["durH", "Dur h"],
+          ["durM", "Dur min"],
+          ["wtBefore", "Wt before"],
+          ["wtAfter", "Wt after"],
+          ["temp", "Temp °C"],
+          ["humidity", "Humidity %"],
+          ["wind", "Wind Bft"],
+          ["clothing", "Clothing"],
+          ["heatTraining", "Heat training"],
+          ["tempAvg", "Core avg"],
+          ["tempMax", "Core max"],
+          ["fluidIn", "Fluid in ml"],
+          ["foodG", "Food g"],
+          ["urineTotal", "Urine ml"],
+          ["urineBreaksCount", "Breaks"],
+          ["grossSweat", "Gross sweat"],
+          ["sweatRate", "Sweat rate"],
+          ["deficit", "Deficit ml"],
+          ["pctLost", "BW loss %"],
+          ["status", "Status"],
+        ];
 
-  function buildCard(s, title, cls) {
-    const rows = keys.map(([k, label]) => {
-      const aVal = String(existing[k]||'—'); const bVal = String(imported[k]||'—');
-      const isDiff = aVal !== bVal;
-      return `<div class="cc-row"><span class="cc-key">${label}</span><span class="cc-val${isDiff ? ' diff' : ''}">${String(s[k]||'—')}</span></div>`;
-    }).join('');
-    return `<div class="conflict-card ${cls}"><div class="cc-title">${title}</div>${rows}</div>`;
-  }
+        function buildCard(s, title, cls) {
+          const rows = keys
+            .map(([k, label]) => {
+              const aVal = String(existing[k] || "—");
+              const bVal = String(imported[k] || "—");
+              const isDiff = aVal !== bVal;
+              return `<div class="cc-row"><span class="cc-key">${label}</span><span class="cc-val${isDiff ? " diff" : ""}">${String(s[k] || "—")}</span></div>`;
+            })
+            .join("");
+          return `<div class="conflict-card ${cls}"><div class="cc-title">${title}</div>${rows}</div>`;
+        }
 
-  document.getElementById('conflict-grid').innerHTML =
-    buildCard(existing, '&#x1F4BE; Existing', '') +
-    buildCard(imported, '&#x2B06; Imported', '');
+        document.getElementById("conflict-grid").innerHTML =
+          buildCard(existing, "&#x1F4BE; Existing", "") +
+          buildCard(imported, "&#x2B06; Imported", "");
 
-  document.getElementById('conflict-modal').classList.remove('hidden');
-}
+        document.getElementById("conflict-modal").classList.remove("hidden");
+      }
 
-function resolveConflict(choice) {
-  const { existing, imported } = conflictQueue[0];
-  mergeBuffer[existing.id] = choice === 'imported' ? imported : existing;
-  conflictQueue._resolved = (conflictQueue._resolved || 0) + 1;
-  conflictQueue.shift();
-  document.getElementById('conflict-modal').classList.add('hidden');
-  if (conflictQueue.length) {
-    showNextConflict(0, 0);
-  } else {
-    commitMerge();
-    renderLog();
-    showToast('Import complete');
-  }
-}
+      function resolveConflict(choice) {
+        const { existing, imported } = conflictQueue[0];
+        mergeBuffer[existing.id] = choice === "imported" ? imported : existing;
+        conflictQueue._resolved = (conflictQueue._resolved || 0) + 1;
+        conflictQueue.shift();
+        document.getElementById("conflict-modal").classList.add("hidden");
+        if (conflictQueue.length) {
+          showNextConflict(0, 0);
+        } else {
+          commitMerge();
+          renderLog();
+          showToast("Import complete");
+        }
+      }
 
-function commitMerge() {
-  const merged = Object.values(mergeBuffer);
-  putSessions(merged);
-  mergeBuffer = {};
-  renderLog();
-}
+      function commitMerge() {
+        const merged = Object.values(mergeBuffer);
+        putSessions(merged);
+        mergeBuffer = {};
+        renderLog();
+      }
 
-/* ── Session summary popup ── */
-const WIND_LABELS = ['Calm','Light air','Light breeze','Gentle breeze','Moderate breeze','Fresh breeze','Strong breeze','High wind','Gale'];
+      /* ── Session summary popup ── */
+      const WIND_LABELS = [
+        "Calm",
+        "Light air",
+        "Light breeze",
+        "Gentle breeze",
+        "Moderate breeze",
+        "Fresh breeze",
+        "Strong breeze",
+        "High wind",
+        "Gale",
+      ];
 
-function statusClass(status) {
-  if (!status) return '';
-  if (status.includes('Well')) return 'c-green';
-  if (status.includes('Acceptable')) return 'c-blue';
-  if (status.includes('Mild')) return 'c-amber';
-  return 'c-red';
-}
-function statusPillClass(status) {
-  if (!status) return 'pill-green';
-  if (status.includes('Well')) return 'pill-green';
-  if (status.includes('Acceptable')) return 'pill-blue';
-  if (status.includes('Mild')) return 'pill-amber';
-  return 'pill-red';
-}
-function barColor(status) {
-  if (!status) return 'var(--green)';
-  if (status.includes('Well')) return 'var(--green)';
-  if (status.includes('Acceptable')) return 'var(--teal)';
-  if (status.includes('Mild')) return 'var(--amber)';
-  return 'var(--red)';
-}
+      function statusClass(status) {
+        if (!status) return "";
+        if (status.includes("Well")) return "c-green";
+        if (status.includes("Acceptable")) return "c-blue";
+        if (status.includes("Mild")) return "c-amber";
+        return "c-red";
+      }
+      function statusPillClass(status) {
+        if (!status) return "pill-green";
+        if (status.includes("Well")) return "pill-green";
+        if (status.includes("Acceptable")) return "pill-blue";
+        if (status.includes("Mild")) return "pill-amber";
+        return "pill-red";
+      }
+      function barColor(status) {
+        if (!status) return "var(--green)";
+        if (status.includes("Well")) return "var(--green)";
+        if (status.includes("Acceptable")) return "var(--teal)";
+        if (status.includes("Mild")) return "var(--amber)";
+        return "var(--red)";
+      }
 
-function openSummary(id) {
-  const s = getSessions().find(s => s.id === id);
-  if (!s) return;
+      function openSummary(id) {
+        const s = getSessions().find((s) => s.id === id);
+        if (!s) return;
 
-  document.getElementById('summary-title').textContent = `${s.date} · ${s.time}`;
-  document.getElementById('summary-subtitle').textContent = `Session ID ${s.id}`;
+        document.getElementById("summary-title").textContent =
+          `${s.date} · ${s.time}`;
+        document.getElementById("summary-subtitle").textContent =
+          `Session ID ${s.id}`;
 
-  const windLabel = WIND_LABELS[parseInt(s.wind)] || '—';
-  const pct = parseFloat(s.pctLost) || 0;
-  const barW = Math.min(100, (pct / 4) * 100).toFixed(1);
-  const sc = statusClass(s.status);
-  const pillCls = statusPillClass(s.status);
+        const windLabel = WIND_LABELS[parseInt(s.wind)] || "—";
+        const pct = parseFloat(s.pctLost) || 0;
+        const barW = Math.min(100, (pct / 4) * 100).toFixed(1);
+        const sc = statusClass(s.status);
+        const pillCls = statusPillClass(s.status);
 
-  const kv = (label, val, unit='') =>
-    `<div class="summary-kv"><span class="kv-label">${label}</span><span class="kv-value${val === '—' ? ' muted' : ''}">${val}${unit && val !== '—' ? `<span style="font-size:11px;font-weight:400;color:var(--text-tertiary);margin-left:3px;">${unit}</span>` : ''}</span></div>`;
+        const kv = (label, val, unit = "") =>
+          `<div class="summary-kv"><span class="kv-label">${label}</span><span class="kv-value${val === "—" ? " muted" : ""}">${val}${unit && val !== "—" ? `<span style="font-size:11px;font-weight:400;color:var(--text-tertiary);margin-left:3px;">${unit}</span>` : ""}</span></div>`;
 
-  const body = `
+        const body = `
     <div class="summary-section">
       <div class="summary-section-title">Session</div>
       <div class="summary-kv-grid">
-        ${kv('Duration', `${s.durH}h ${s.durM}m`)}
-        ${kv('Weight before', s.wtBefore || '—', 'kg')}
-        ${kv('Weight after', s.wtAfter || '—', 'kg')}
-        ${kv('Weight loss', s.wtBefore && s.wtAfter ? Math.round((parseFloat(s.wtBefore)-parseFloat(s.wtAfter))*1000) : '—', 'g')}
+        ${kv("Duration", `${s.durH}h ${s.durM}m`)}
+        ${kv("Weight before", s.wtBefore || "—", "kg")}
+        ${kv("Weight after", s.wtAfter || "—", "kg")}
+        ${kv("Weight loss", s.wtBefore && s.wtAfter ? Math.round((parseFloat(s.wtBefore) - parseFloat(s.wtAfter)) * 1000) : "—", "g")}
       </div>
     </div>
 
     <div class="summary-section">
       <div class="summary-section-title">Environment</div>
       <div class="summary-kv-grid">
-        ${kv('Air temperature', s.temp || '—', '°C')}
-        ${kv('Humidity', s.humidity || '—', '%')}
-        ${kv('Wind', s.wind !== undefined ? `${s.wind} Bft — ${windLabel}` : '—')}
-        ${kv('Clothing', s.clothing || '—')}
-        ${kv('Heat training', s.heatTraining === true || s.heatTraining === 'true' ? '🔥 Yes' : 'No')}
+        ${kv("Air temperature", s.temp || "—", "°C")}
+        ${kv("Humidity", s.humidity || "—", "%")}
+        ${kv("Wind", s.wind !== undefined ? `${s.wind} Bft — ${windLabel}` : "—")}
+        ${kv("Clothing", s.clothing || "—")}
+        ${kv("Heat training", s.heatTraining === true || s.heatTraining === "true" ? "🔥 Yes" : "No")}
       </div>
     </div>
 
     <div class="summary-section">
       <div class="summary-section-title">Core body temperature</div>
       <div class="summary-kv-grid">
-        ${kv('Average core temp', s.tempAvg || '—', '°C')}
-        ${kv('Max core temp', s.tempMax || '—', '°C')}
+        ${kv("Average core temp", s.tempAvg || "—", "°C")}
+        ${kv("Max core temp", s.tempMax || "—", "°C")}
       </div>
     </div>
 
     <div class="summary-section">
       <div class="summary-section-title">Intake &amp; output</div>
       <div class="summary-kv-grid">
-        ${kv('Fluid consumed', s.fluidIn, 'ml')}
-        ${kv('Food eaten', s.foodG, 'g')}
-        ${kv('Urine output', s.urineTotal, 'ml')}
-        ${kv('Bathroom breaks', s.urineBreaksCount)}
+        ${kv("Fluid consumed", s.fluidIn, "ml")}
+        ${kv("Food eaten", s.foodG, "g")}
+        ${kv("Urine output", s.urineTotal, "ml")}
+        ${kv("Bathroom breaks", s.urineBreaksCount)}
       </div>
     </div>
 
@@ -948,38 +2317,48 @@ function openSummary(id) {
     </div>
   `;
 
-  document.getElementById('summary-body').innerHTML = body;
+        document.getElementById("summary-body").innerHTML = body;
 
-  const delBtn = document.getElementById('summary-del-btn');
-  delBtn.onclick = () => {
-    if (!confirm('Delete this session from the log?')) return;
-    deleteSession(id);
-    closeSummary();
-  };
+        const delBtn = document.getElementById("summary-del-btn");
+        delBtn.onclick = () => {
+          if (!confirm("Delete this session from the log?")) return;
+          deleteSession(id);
+          closeSummary();
+        };
 
-  document.getElementById('summary-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
+        document.getElementById("summary-modal").classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
 
-function closeSummary() {
-  document.getElementById('summary-modal').classList.add('hidden');
-  document.body.style.overflow = '';
-}
+      function closeSummary() {
+        document.getElementById("summary-modal").classList.add("hidden");
+        document.body.style.overflow = "";
+      }
 
-// Close on overlay click
-document.getElementById('summary-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeSummary();
-});
-// Close on Escape
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSummary(); } });
+      // Close on overlay click
+      document
+        .getElementById("summary-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeSummary();
+        });
+      // Close on Escape
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSummary();
+        }
+      });
 
-/* ── Misc ── */
-function showToast(msg) {
-  const t = document.getElementById('toast'); t.textContent = msg;
-  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500);
-}
+      /* ── Misc ── */
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2500);
+      }
 
-renderUrine(); calc(); renderLog();
-</script>
-</body>
+      renderUrine();
+      calc();
+      renderLog();
+    </script>
+  </body>
 </html>
